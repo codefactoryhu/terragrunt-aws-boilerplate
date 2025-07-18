@@ -1,17 +1,323 @@
 variables:
-  - name: Type
-    description: "single-account: single environment with stack preset, multi-account: multy environment with stack preset, terragrunt-stack: for granural stack generation with unit list"
+  - name: ProjectName
+    order: 1
+    type: string
+    default: "example-multi-account-project"
+    validations:
+      - required
+      - length-3-20
+
+  - name: ProjectVersion
+    description: "(semantic versioning format: x.y.z)"
+    order: 2
+    type: string
+    default: "1.0.0"
+    validations:
+      - required
+      - semver
+
+  - name: OrganizationId
+    description: "(format: o-xxxxxxxxxx)"
+    order: 3
+    type: string
+    validations:
+      - required
+      - length-10-32
+  
+  - name: OrganizationRootId
+    description: "(format: o-xxxx)"
+    order: 4
+    type: string
+    validations:
+      - required
+      - length-6-36
+
+  - name: DevelopmentAccountId
+    description: "(exactly 12 digits)"
+    order: 5
+    type: string
+    validations:
+      - required
+      - length-12-12
+      - digit
+
+  - name: ManagementAccountId
+    description: "(exactly 12 digits)"
+    order: 6
+    type: string
+    validate:
+      - required
+      - length-12
+
+  - name: MonitoringAccountId
+    description: "(exactly 12 digits)"
+    order: 7
+    type: string
+    validate:
+      - required
+      - length-12
+
+  - name: ProductionAccountId
+    description: "(exactly 12 digits)"
+    order: 8
+    type: string
+    validate:
+      - required
+      - length-12
+
+  - name: DevelopmentEmail
+    description: "(valid email format)"
+    order: 9
+    type: string
+    validations:
+      - required
+      - email
+
+  - name: ManagementEmail
+    description: "(valid email format)"
+    order: 10
+    type: string
+    validations:
+      - required
+      - email
+
+  - name: MonitoringEmail
+    description: "(valid email format)"
+    order: 11
+    type: string
+    validations:
+      - required
+      - email
+
+  - name: ProductionEmail
+    description: "(valid email format)"
+    order: 12
+    type: string
+    validations:
+      - required
+      - email
+
+  - name: DevelopmentRegion
+    order: 13
     type: enum
+    default: "eu-west-1"
     options:
-      - single-account
-      - multi-account
-      - terragrunt-stack
+      - "us-east-1"
+      - "us-east-2"
+      - "us-west-1"
+      - "us-west-2"
+      - "eu-west-1"
+      - "eu-west-2"
+      - "eu-west-3"
+      - "eu-central-1"
+      - "eu-central-2"
+      - "eu-north-1"
+      - "eu-south-1"
+      - "eu-south-2"
+      - "ap-northeast-1"
+      - "ap-northeast-2"
+      - "ap-northeast-3"
+      - "ap-southeast-1"
+      - "ap-southeast-2"
+      - "ap-southeast-3"
+      - "ap-south-1"
+      - "ap-south-2"
+      - "ca-central-1"
+      - "sa-east-1"
     validate:
       - required
 
+  - name: ManagementRegion
+    order: 14
+    type: enum
+    default: "eu-west-1"
+    options:
+      - "us-east-1"
+      - "us-east-2"
+      - "us-west-1"
+      - "us-west-2"
+      - "eu-west-1"
+      - "eu-west-2"
+      - "eu-west-3"
+      - "eu-central-1"
+      - "eu-central-2"
+      - "eu-north-1"
+      - "eu-south-1"
+      - "eu-south-2"
+      - "ap-northeast-1"
+      - "ap-northeast-2"
+      - "ap-northeast-3"
+      - "ap-southeast-1"
+      - "ap-southeast-2"
+      - "ap-southeast-3"
+      - "ap-south-1"
+      - "ap-south-2"
+      - "ca-central-1"
+      - "sa-east-1"
+    validate:
+      - required
+
+  - name: MonitoringRegion
+    order: 15
+    type: enum
+    default: "eu-west-1"
+    options:
+      - "us-east-1"
+      - "us-east-2"
+      - "us-west-1"
+      - "us-west-2"
+      - "eu-west-1"
+      - "eu-west-2"
+      - "eu-west-3"
+      - "eu-central-1"
+      - "eu-central-2"
+      - "eu-north-1"
+      - "eu-south-1"
+      - "eu-south-2"
+      - "ap-northeast-1"
+      - "ap-northeast-2"
+      - "ap-northeast-3"
+      - "ap-southeast-1"
+      - "ap-southeast-2"
+      - "ap-southeast-3"
+      - "ap-south-1"
+      - "ap-south-2"
+      - "ca-central-1"
+      - "sa-east-1"
+    validate:
+      - required
+
+  - name: ProductionRegion
+    order: 16
+    type: enum
+    default: "eu-west-1"
+    options:
+      - "us-east-1"
+      - "us-east-2"
+      - "us-west-1"
+      - "us-west-2"
+      - "eu-west-1"
+      - "eu-west-2"
+      - "eu-west-3"
+      - "eu-central-1"
+      - "eu-central-2"
+      - "eu-north-1"
+      - "eu-south-1"
+      - "eu-south-2"
+      - "ap-northeast-1"
+      - "ap-northeast-2"
+      - "ap-northeast-3"
+      - "ap-southeast-1"
+      - "ap-southeast-2"
+      - "ap-southeast-3"
+      - "ap-south-1"
+      - "ap-south-2"
+      - "ca-central-1"
+      - "sa-east-1"
+    validate:
+      - required
+
+  - name: StateRegion
+    description: "Region for Terraform state bucket"
+    order: 17
+    type: enum
+    default: "eu-central-1"
+    options:
+      - "us-east-1"
+      - "us-east-2"
+      - "us-west-1"
+      - "us-west-2"
+      - "eu-west-1"
+      - "eu-west-2"
+      - "eu-west-3"
+      - "eu-central-1"
+      - "eu-central-2"
+      - "eu-north-1"
+      - "eu-south-1"
+      - "eu-south-2"
+      - "ap-northeast-1"
+      - "ap-northeast-2"
+      - "ap-northeast-3"
+      - "ap-southeast-1"
+      - "ap-southeast-2"
+      - "ap-southeast-3"
+      - "ap-south-1"
+      - "ap-south-2"
+      - "ca-central-1"
+      - "sa-east-1"
+    validate:
+      - required
+
+  - name: InfrastructurePreset
+    description: |
+      Choose your AWS infrastructure setup:
+      • vpc            (vpc)
+      • web            (s3, cloudfront, route53, webacl)
+      • serverless     (vpc, rds, lambda, secrets manager)
+      • eks-auto       (vpc, eks-automod)
+      • eks-managed    (vpc, eks-managed-nodegroup)
+    order: 18
+    type: enum
+    options:
+      - vpc
+      - web
+      - serverless
+      - eks-auto
+      - eks-managed
+    default: vpc
+    validate:
+      - required
+
+  - name: OpentofuVersion
+    description: "OpenTofu version"
+    order: 19
+    type: string
+    default: "1.10.2"
+    validate:
+      - required
+      - semver
+
+  - name: TerragruntVersion
+    description: "Terragrunt version"
+    order: 20
+    type: string
+    default: "0.82.3"
+    validate:
+      - required
+      - semver
+
 hooks:
-  after:
-    - command: bash
+  before:
+    - command: "bash"
       args:
-        - -c
-        - "{{ if eq .Type \"single-account\" }}boilerplate --template-url \"github.com/codefactoryhu/boilerplate-aws//terragrunt-boilerplate?ref=single-account\" --output-folder {{ outputFolder }}{{ else if eq .Type \"multi-account\" }}boilerplate --template-url \"github.com/codefactoryhu/boilerplate-aws//terragrunt-boilerplate?ref=multi-account\" --output-folder {{ outputFolder }}{{ else if eq .Type \"terragrunt-stack\" }}boilerplate --template-url \"github.com/codefactoryhu/boilerplate-aws//terragrunt-boilerplate?ref=terragrunt-stack\" --output-folder {{ outputFolder }}{{ end }}"
+        - "-c"
+        - |
+          COLOR_GREEN="\033[1;32m"    
+          COLOR_HIGHLIGHT="\033[1;33m"      
+          COLOR_RESET="\033[0m"         
+
+          echo -e "${COLOR_GREEN} Code Factory Terragrunt Stack Boilerplate${COLOR_RESET}"
+          echo -e "${COLOR_GREEN} Starting Terragrunt Stack generation for ${COLOR_HIGHLIGHT}{{.ProjectName}}${COLOR_SUCCESS}...${COLOR_RESET}"
+
+  after:
+    - command: "bash"
+      args:
+        - "-c"
+        - "find . -type d -empty -delete 2>/dev/null || true"
+      dir: "{{ outputFolder }}"
+
+    - command: "bash"
+      args:
+        - "-c"
+        - |
+          COLOR_SUCCESS="\033[1;32m"    
+          COLOR_HIGHLIGHT="\033[1;33m"   
+          COLOR_COMMAND="\033[1;37m"    
+          COLOR_RESET="\033[0m"         
+
+          echo ""
+          echo -e "${COLOR_SUCCESS} Terragrunt Stack generated successfully!${COLOR_RESET}"
+          echo -e "${COLOR_COMMAND} Next steps:"
+          echo -e "${COLOR_COMMAND}   1. mise trust && mise install"
+          echo -e "${COLOR_COMMAND}   2. Configure AWS credentials"
+          echo -e "${COLOR_COMMAND}   3. Review and customize the configuration${COLOR_RESET}"
