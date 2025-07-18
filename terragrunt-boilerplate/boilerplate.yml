@@ -1,0 +1,17 @@
+variables:
+  - name: Type
+    description: "single-account: single environment with stack preset, multi-account: multy environment with stack preset, terragrunt-stack: for granural stack generation with unit list"
+    type: enum
+    options:
+      - single-account
+      - multi-account
+      - terragrunt-stack
+    validate:
+      - required
+
+hooks:
+  after:
+    - command: bash
+      args:
+        - -c
+        - "{{ if eq .Type \"single-account\" }}boilerplate --template-url \"github.com/codefactoryhu/boilerplate-aws//terragrunt-boilerplate?ref=single-account\" --output-folder {{ outputFolder }}{{ else if eq .Type \"multi-account\" }}boilerplate --template-url \"github.com/codefactoryhu/boilerplate-aws//terragrunt-boilerplate?ref=multy-account\" --output-folder {{ outputFolder }}{{ else if eq .Type \"terragrunt-stack\" }}boilerplate --template-url \"github.com/codefactoryhu/boilerplate-aws//terragrunt-boilerplate?ref=stack\" --output-folder {{ outputFolder }}{{ end }}"
