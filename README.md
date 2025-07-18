@@ -1,1 +1,1 @@
-# terragrunt-aws-boilerplate
+# terragrunt-aws-boilerplate - terragrunt-stack option
