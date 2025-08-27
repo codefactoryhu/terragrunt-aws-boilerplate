@@ -17,7 +17,7 @@ locals {
 }
 {{ if eq .InfrastructurePreset "vpc" }}
 unit "vpc" {
-  source = "../../../../../units/eks-auto/vpc"
+  source = "../../../../../units/vpc"
   path   = "vpc"
 
   values = {
