@@ -4,7 +4,6 @@ variables:
       Choose your AWS infrastructure setup:
       • vpc            (vpc)
       • web            (s3, cloudfront, route53, webacl)
-      • serverless     (vpc, rds, lambda, secrets manager)
       • eks-auto       (vpc, eks-automod)
       • eks-managed    (vpc, eks-managed-nodegroup)
     order: 15
@@ -12,7 +11,6 @@ variables:
     options:
       - vpc
       - web
-      - serverless
       - eks-auto
       - eks-managed
     default: vpc
