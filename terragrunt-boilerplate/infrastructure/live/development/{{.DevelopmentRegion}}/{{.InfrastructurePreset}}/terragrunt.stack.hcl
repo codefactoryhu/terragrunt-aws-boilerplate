@@ -17,11 +17,6 @@ locals {
   {{ if eq .InfrastructurePreset "serverless" }}
   allow_origins = ["https://exakmpledomain.com", "https://app.exakmpledomain.com"]
   {{ end }}
-  tags = {
-    Project     = local.project
-    Environment = local.env
-    Maintainer   = "Terragrunt"
-  }
 }
 {{ if or (eq .InfrastructurePreset "vpc") (eq .InfrastructurePreset "eks-auto") (eq .InfrastructurePreset "eks-managed") (eq .InfrastructurePreset "serverless") }}
 unit "vpc" {
@@ -78,35 +73,15 @@ unit "vpc" {
 }
 {{ end }}
 {{ if eq .InfrastructurePreset "web" }}
-unit "route53_zones" {
-  source = "../../../../../units/route53-zones"
-  path   = "route53-zones"
-
-  values = {
-    zones = {
-      "${local.domains.primary}" = {
-        comment = "Hosted zone for ${local.domains.primary}"
-        tags = {
-          Name = local.domains.primary
-        }
-      }
-    }
-
-    tags = {
-      Name = "${local.project}-dns-zones"
-    }
-  }
-}
-
 unit "acm" {
-  source = "../../../../../units/acm"
+  source = "../../../../../units/web/acm"
   path   = "acm"
 
   values = {
-    route53_path              = "../route53-zones"
-    domain_name               = local.domains.primary
-    subject_alternative_names = [local.domains.www]
-    wait_for_validation       = true
+    hosted_zone_id                  = "<HOSTED_ZONE_ID>"
+    domain_name                     = local.domains.primary
+    subject_alternative_names       = [local.domains.www]
+    wait_for_validation             = true
 
     tags = {
       Name = "${local.project}-ssl"
@@ -115,44 +90,13 @@ unit "acm" {
 }
 
 unit "webacl" {
-  source = "../../../../../units/webacl"
+  source = "../../../../../units/web/webacl"
   path   = "webacl"
 
   values = {
-    name  = "${local.project}-waf"
-    name_prefix = "cloudfront"
-    scope = "CLOUDFRONT"
-
-    rules = [
-      {
-        name            = "AWSManagedRulesCommonRuleSet"
-        priority        = 1
-        override_action = "none"
-        visibility_config = {
-          cloudwatch_metrics_enabled = true
-          metric_name                = "CommonRuleSetMetric"
-          sampled_requests_enabled   = true
-        }
-        managed_rule_group_statement = {
-          name        = "AWSManagedRulesCommonRuleSet"
-          vendor_name = "AWS"
-        }
-      }
-    ]
-
-    rate_based_rules = [
-      {
-        name     = "RateLimitRule"
-        priority = 100
-        action   = "block"
-        limit    = 2000
-        visibility_config = {
-          cloudwatch_metrics_enabled = true
-          metric_name                = "RateLimitRule"
-          sampled_requests_enabled   = true
-        }
-      }
-    ]
+    name        = "${local.project}-waf"
+    name_prefix = "${local.project}-waf"
+    scope       = "CLOUDFRONT"
 
     tags = {
       Name = "${local.project}-waf"
@@ -161,11 +105,11 @@ unit "webacl" {
 }
 
 unit "s3" {
-  source = "../../../../../units/s3"
+  source = "../../../../../units/web/s3"
   path   = "s3"
 
   values = {
-    bucket_name = "${local.project}-static-site-codefactory"
+    bucket_name = "${local.project}-site-<UNIQUE_SUFFIX>"
 
     website = {
       index_document = "index.html"
@@ -176,50 +120,10 @@ unit "s3" {
     block_public_policy     = true
     ignore_public_acls      = true
     restrict_public_buckets = true
-
-    attach_policy = true
-    policy = jsonencode({
-      Version = "2012-10-17"
-      Statement = [
-        {
-          Sid       = "AllowCloudFrontServicePrincipal"
-          Effect    = "Allow"
-          Principal = {
-            Service = "cloudfront.amazonaws.com"
-          }
-          Action   = "s3:GetObject"
-          Resource = "arn:aws:s3:::${local.project}-static-site-codefactory/*"
-          Condition = {
-            StringEquals = {
-              "AWS:SourceArn" = "arn:aws:cloudfront::${local.development_account_id}:distribution/*"
-            }
-          }
-        }
-      ]
-    })
-
+    
     versioning = {
       enabled = true
     }
-
-    server_side_encryption_configuration = {
-      rule = {
-        apply_server_side_encryption_by_default = {
-          sse_algorithm = "AES256"
-        }
-        bucket_key_enabled = true
-      }
-    }
-
-    cors_rule = [
-      {
-        allowed_headers = ["*"]
-        allowed_methods = ["GET", "HEAD"]
-        allowed_origins = ["*"]
-        expose_headers  = ["ETag"]
-        max_age_seconds = 3000
-      }
-    ]
 
     lifecycle_rule = [
       {
@@ -232,47 +136,21 @@ unit "s3" {
     ]
 
     tags = {
-      Name = "${local.project}-static-site"
+      Name = "${local.project}-site-<UNIQUE_SUFFIX>"
     }
   }
 }
 
 unit "cloudfront" {
-  source = "../../../../../units/cloudfront"
+  source = "../../../../../units/web/cloudfront"
   path   = "cloudfront"
 
   values = {
     s3_path                = "../s3"
-    webacl_path            = "../webacl"
     acm_path               = "../acm"
-    enable_waf             = true
-    use_custom_certificate = true
+    webacl_path            = "../webacl"
 
     aliases = ["${local.domains.www}", "${local.domains.primary}"]
-    comment = "CloudFront distribution for my web project"
-
-    viewer_protocol_policy = "redirect-to-https"
-    allowed_methods        = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cached_methods         = ["GET", "HEAD"]
-    compress               = true
-
-    min_ttl     = 0
-    default_ttl = 3600
-    max_ttl     = 86400
-
-
-    custom_error_response = [
-      {
-        error_code         = 404
-        response_code      = 404
-        response_page_path = "/error.html"
-      },
-      {
-        error_code         = 403
-        response_code      = 404
-        response_page_path = "/error.html"
-      }
-    ]
 
     tags = {
       Name = "${local.project}-cloudfront"
@@ -281,21 +159,20 @@ unit "cloudfront" {
 }
 
 unit "route53_records" {
-  source = "../../../../../units/route53"
+  source = "../../../../../units/web/route53"
   path   = "route53-records"
 
   values = {
-    cloudfront_path    = "../cloudfront"
-    route53_zones_path = "../route53-zones"
+    cloudfront_path = "../cloudfront"
     
-    primary_domain = local.domains.primary
+    primary_domain = "${local.domains.primary}"
 
     domain_names = ["${local.domains.primary}", "${local.domains.www}"]
     enable_ipv6  = true
 
     additional_records = [
       {
-        name    = local.domains.primary
+        name    = "mail"
         type    = "MX"
         ttl     = 300
         records = ["10 mail.${local.domains.primary}"]
