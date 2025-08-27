@@ -1,8 +1,9 @@
 variables:
   - name: ProjectName
+    description: "(lowercase, alphanumeric with hyphens)"
     order: 1
     type: string
-    default: "example-multi-account-project"
+    default: "my-project"
     validations:
       - required
       - length-3-20
