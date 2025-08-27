@@ -32,6 +32,22 @@ inputs = {
   create_flow_log_cloudwatch_iam_role  = try(values.create_flow_log_cloudwatch_iam_role, false)
   create_flow_log_cloudwatch_log_group = try(values.create_flow_log_cloudwatch_log_group, false)
 
+  public_subnet_tags = merge(
+    try(values.public_subnet_tags, {}),
+    try(values.cluster_name, null) != null ? {
+      "kubernetes.io/role/elb" = "1"
+      "kubernetes.io/cluster/${values.cluster_name}" = "owned"
+    } : {}
+  )
+
+  private_subnet_tags = merge(
+    try(values.private_subnet_tags, {}),
+    try(values.cluster_name, null) != null ? {
+      "kubernetes.io/role/internal-elb" = "1"
+      "kubernetes.io/cluster/${values.cluster_name}" = "owned"
+    } : {}
+  )
+
   database_subnet_tags = try(values.database_subnet_tags, {
     Type = "Database"
   })
