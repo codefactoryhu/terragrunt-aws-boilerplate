@@ -1,34 +1,91 @@
-## Boilerplate Templates for Terragrunt by Code Factory
+# Boilerplate Templates for Terragrunt by Code Factory / Terragrunt sablonok a Code Factory-tól
 
-This repository contains ready-to-use AWS infrastructure templates built with Terragrunt. These templates help you quickly set up consistent, well-structured infrastructure across different environments and account configurations.
+- [English (ENG)](#english-eng)
+- [Magyar (HUN)](#magyar-hun)
 
-### What is Boilerplate?
+---
+English (ENG)
+## Terragrunt Templates from Code Factory
 
-Boilerplate is a powerful templating tool that generates files and directories from predefined templates. Instead of manually creating infrastructure code from scratch, you can use these templates to generate a complete project structure with all the necessary files.
+Overview
+This repository contains pre-built AWS infrastructure templates built with Terragrunt.  
+With these templates, you can generate consistent, well-structured IaC code for both multi-account and single-account setups. We use Boilerplate for this.
 
-[Learn more about Boilerplate](https://github.com/gruntwork-io/boilerplate)
+What is Boilerplate?
+Boilerplate is a tool that creates files and directories from predefined templates.  
+Instead of writing IaC code from scratch manually, you can generate a complete project structure with all the necessary files included using these templates.
 
-### Template Options
+> Gruntwork Boilerplate: https://github.com/gruntwork-io/boilerplate  
 
-This repository offers three different template configurations:
+Options
 
-- single-account:  Perfect for projects that deploy infrastructure within a single AWS account.
-- multy-account:  Designed for enterprise-grade setups that require infrastructure spanning multiple AWS accounts.
-- stack:  Creates a single, self-contained Terragrunt stack deployment. It's lightweight and focused on single-purpose deployments.
+This repository offers three configurations:
+- single-account – For projects using a single AWS account.
+- multi-account – For enterprise environments spanning multiple AWS accounts.
+- stack – Creates a single, standalone Terragrunt stack file.
 
-The main branch automatically guides you through selecting the most appropriate template for your specific use case.
+The repository is split into branches, with the main branch acting as a router: it uses the same boilerplate command as you will when starting the templating process. Based on your chosen option, it redirects you to the appropriate branch and template. During prompting, Boilerplate will guide you through creating your project.
 
-#### Getting Started
-- Install Boilerplate: Follow the installation instructions from the [official Boilerplate repository](https://github.com/gruntwork-io/boilerplate#install)
+Getting Started
 
-- Generate your project: Run the following command to create a new project structure. You don't need to clone this repository - Boilerplate will fetch the templates directly from GitHub:
+1) Install Boilerplate  
+Follow the official installation guide:  
+> Install: https://github.com/gruntwork-io/boilerplate#install  
 
+2) Generate Project  
+You don’t need to clone this repository — Boilerplate downloads the templates directly from GitHub.  
+Run the following command:
 
 ```bash
 boilerplate --template-url "github.com/codefactoryhu/terragrunt-aws-boilerplate//terragrunt-boilerplate?ref=main" \
 --output-folder ./new-boiler
 ```
 
-This command will guide you through the templating process.
+Customize
+After generation, review and edit the created files to fit your specific infrastructure needs.
+Update variables, resource names, and configurations according to your environment.
 
-Customize for your project: After generation, review and edit the generated files to match your specific infrastructure requirements. Update variables, resource names, and configurations as needed for your environment.
+---
+
+Magyar (HUN)
+## Terragrunt templatek a Code Factory-tól
+
+Áttekintés
+Ez a repository előre elkészített, Terragrunttal épített AWS infrastruktúra-templateket tartalmaz.  
+A templatekkel generálhatsz egy konzisztens, jól strukturált IAC kódot multy-account és single-account felépítésre is. Ehhez a Boilerplatet használjuk.
+
+Mi az a Boilerplate?
+A Boilerplate egy eszköz, amely előre definiált templatekből létre fájlokat és könyvtárakat.  
+Ahelyett, hogy az IAC kódot a nulláról, kézzel írnád meg, a a templatekkel teljes projektstruktúra generálható minden szükséges fájllal együtt.
+
+> Gruntwork Boilerplate: https://github.com/gruntwork-io/boilerplate
+
+
+
+Opciók:
+
+A repository három konfigurációt kínál:
+- single-account - Egyetlen AWS-fiókot használó projektekhez.
+- multy-account - Több AWS-fiókot átfogó, enterprise környezetekhez.
+- stack - Egyetlen, önálló Terragrunt stack filet hoz létre.
+
+A repositoryt branchekre osztuttuk, a main branch routerként működik: ugyanazt a boilerplate parancshot használja mint te, amikor elkezded a templating folyamatot. A választott opció alapján továbbít a megfelelő branchre és template-re. A prompting során a boilerplate végigvezet majd a projekted elkészítésén.
+
+Kezdő lépések
+
+  1) Boilerplate telepítése
+  Kövesd a hivatalos telepítési útmutatót:  
+> Install: https://github.com/gruntwork-io/boilerplate#install  
+
+  2) Projekt generálása
+  Nem szükséges klónozni ezt a repositoryt — a Boilerplate közvetlenül a GitHubról tölti le a templateket:
+  Futtasd az alábbi parancsot:
+
+```bash
+boilerplate --template-url "github.com/codefactoryhu/terragrunt-aws-boilerplate//terragrunt-boilerplate?ref=main" \
+--output-folder ./new-boiler
+```
+
+  3) Testreszabás
+  A generálás után nézd át és szerkeszd a létrehozott fájlokat, hogy illeszkedjenek a konkrét infrastruktúra-igényeidhez.
+  Frissítsd a változókat, erőforrásneveket és a konfigurációkat a saját környezetednek megfelelően.
