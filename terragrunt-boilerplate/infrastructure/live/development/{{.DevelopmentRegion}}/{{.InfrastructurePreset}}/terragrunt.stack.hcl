@@ -338,13 +338,47 @@ unit "additional_iam_roles" {
 }
 {{ end }}
 {{ if eq .InfrastructurePreset "eks-managed" }}
+unit "vpc" {
+  source = "../../../../../units/eks-managed/vpc"
+  path   = "vpc"
+
+  values = {
+    name = "${local.project}-${local.env}-vpc"
+    cidr = "10.0.0.0/16"
+
+    azs             = ["${local.region}a", "${local.region}b"]
+    private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+    public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+
+    enable_nat_gateway     = true
+    single_nat_gateway     = true
+    one_nat_gateway_per_az = false
+
+    enable_dns_hostnames = true
+    enable_dns_support   = true
+
+    enable_flow_log                      = false
+    create_flow_log_cloudwatch_iam_role  = false
+    create_flow_log_cloudwatch_log_group = false
+
+
+    cluster_name = "${local.env}-eks"
+
+
+    tags = {
+      Name      = "${local.project}-${local.env}-vpc"
+      ManagedBy = "Terragrunt"
+    }
+  }
+}
+
 unit "kms" {
-  source = "../../../../../units/kms"
+  source = "../../../../../units/eks-managed/kms"
   path   = "kms"
 
   values = {
     description = "KMS key for EKS cluster encryption"
-    aliases     = ["alias/eks-cluster-encryption"]
+    aliases     = ["alias/eks-cluster-encryption-terragrunt"]
 
     key_administrators = [
       "arn:aws:iam::${local.development_account_id}:root",
@@ -354,226 +388,124 @@ unit "kms" {
     deletion_window_in_days = 7
 
     tags = {
-      Name        = "eks-cluster-kms-key"
-      Environment = "development"
-      Purpose     = "EKS-Encryption"
+      Name    = "eks-cluster-kms-key"
+      Purpose = "EKS-Encryption"
     }
   }
 }
 
+unit "cross-account-role" {
+  source = "../../../../../units/cross-account-role"
+  path   = "cross-account-role"
+
+  values = {
+    trusted_account_arn         = "arn:aws:iam::<ACCOUNT_ID>:role/aws-reserved/sso.amazonaws.com/eu-central-1/<ROLE_NAME>"
+    eks_cross_account_role_name = "eks-cross-account-access"
+  }
+}
+
 unit "eks" {
-  source = "../../../../../units/eks"
+  source = "../../../../../units/eks-managed/eks"
   path   = "eks"
 
   values = {
     vpc_path = "../vpc"
     kms_path = "../kms"
 
-    cluster_name    = "${local.project}-cluster"
-    cluster_version = "1.31"
+    name               = "${local.env}-eks"
+    kubernetes_version = "1.33"
 
-    enable_auto_mode              = false
-    bootstrap_self_managed_addons = true
-
-    eks_managed_node_groups = {
-      default = {
-        min_size       = 1
-        max_size       = 3
-        desired_size   = 2
-        instance_types = ["t3.medium"]
-        ami_type       = "AL2_x86_64"
-        capacity_type  = "ON_DEMAND"
-
-        labels = {
-          Environment = "development"
-          NodeGroup   = "default"
-        }
-
-        taints = []
-        
-        block_device_mappings = {
-          xvda = {
-            device_name = "/dev/xvda"
-            ebs = {
-              volume_size           = 20
-              volume_type           = "gp3"
-              encrypted             = true
-              delete_on_termination = true
-            }
-          }
-        }
-
-        update_config = {
-          max_unavailable_percentage = 25
-        }
-
-        metadata_options = {
-          http_endpoint               = "enabled"
-          http_tokens                 = "required"
-          http_put_response_hop_limit = 2
-          instance_metadata_tags      = "disabled"
-        }
-      }
-    }
-
-    cluster_addons = {
-      coredns = {
-        version = "v1.11.1-eksbuild.4"
-      }
-      kube-proxy = {
-        version = "v1.31.0-eksbuild.3"
-      }
-      vpc-cni = {
-        version = "v1.18.1-eksbuild.3"
-      }
-    }
-
-    cluster_endpoint_public_access       = true
-    cluster_endpoint_private_access      = true
-    cluster_endpoint_public_access_cidrs = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
-
-    authentication_mode = "API_AND_CONFIG_MAP"
+    endpoint_public_access                   = true
+    enable_cluster_creator_admin_permissions = true
 
     access_entries = {
-      admin = {
-        principal_arn     = "arn:aws:iam::${local.development_account_id}:role/terragrunt-execution-role"
-        kubernetes_groups = ["system:masters"]
+      test = {
+        principal_arn = "arn:aws:iam::<ACCOUNT_ID>:role/aws-reserved/sso.amazonaws.com/<AWS_REGION>/<ROLE_NAME>"
+
         policy_associations = {
           admin = {
             policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
             access_scope = {
-              type = "cluster"
+              namespace = []
+              type      = "cluster"
+            }
+          }
+        }
+      },
+      cross-accoount = {
+        principal_arn = "arn:aws:iam::<ACCOUNT_ID>:role/eks-cross-account-access"
+
+        policy_associations = {
+          admin = {
+            policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+            access_scope = {
+              namespace = []
+              type      = "cluster"
             }
           }
         }
       }
     }
 
-    enable_irsa = true
-
-    enable_kms_encryption = true
-
-    cluster_enabled_log_types              = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
-    cloudwatch_log_group_retention_in_days = 30
-    create_cloudwatch_log_group            = true
-
-    cluster_security_group_additional_rules = {
-      ingress_nodes_443 = {
-        description                = "Node groups to cluster API"
-        protocol                   = "tcp"
-        from_port                  = 443
-        to_port                    = 443
-        type                       = "ingress"
-        source_node_security_group = true
-      }
-    }
-    
-    node_security_group_additional_rules = {
-      ingress_self_all = {
-        description = "Node to node all ports/protocols"
-        protocol    = "-1"
-        from_port   = 0
-        to_port     = 0
-        type        = "ingress"
-        self        = true
-      }
-      
-      egress_all = {
-        description      = "Node all egress"
-        protocol         = "-1"
-        from_port        = 0
-        to_port          = 0
-        type             = "egress"
-        cidr_blocks      = ["0.0.0.0/0"]
-        ipv6_cidr_blocks = ["::/0"]
-      }
-    }
+    instance_types = ["t3.medium"]
+    min_size       = 1
+    max_size       = 3
+    desired_size   = 2
 
     tags = {
-      Name        = "${local.project}-cluster"
-      Environment = "development"
-      ManagedBy   = "Terragrunt"
-      EKSMode     = "Managed"
+      Name    = "${local.env}-eks"
+      EKSMode = "Managed"
     }
   }
 }
 
-unit "ebs_csi_driver" {
-  source = "../../../../../units/ebs-csi-driver"
-  path   = "ebs-csi-driver"
+unit "ebs-irsa" {
+  source = "../../../../../units/eks-managed/iam-role"
+  path   = "ebs-irsa"
 
   values = {
     eks_path = "../eks"
-    kms_path = "../kms"
 
-    role_name                  = "ebs-csi-driver-role"
+    role_name                  = "${local.project}-${local.env}-ebs-irsa"
     namespace_service_accounts = ["kube-system:ebs-csi-controller-sa"]
 
-    enable_kms_encryption = true
+    attach_ebs_csi_policy = true
 
     tags = {
-      Name        = "ebs-csi-driver-role"
-      Environment = "development"
-      Purpose     = "EBS-CSI-Driver"
+      Name = "${local.project}-${local.env}-irsa-role"
     }
   }
 }
 
-unit "aws_load_balancer_controller" {
-  source = "../../../../../units/aws-lbc"
-  path   = "aws-load-balancer-controller"
+unit "ebs-csi-addon" {
+  source = "../../../../../units/eks-managed/eks-addon"
+  path   = "ebs-csi-addon"
 
   values = {
     eks_path = "../eks"
+    irsa_path = "../ebs-irsa"
 
-    helm_chart_name         = "aws-load-balancer-controller"
-    helm_chart_release_name = "aws-load-balancer-controller"
-    helm_chart_repo         = "https://aws.github.io/eks-charts"
-    helm_chart_version      = "1.8.4"
-
-    namespace            = "kube-system"
-    service_account_name = "aws-load-balancer-controller"
-
-    irsa_role_name_prefix = "aws-load-balancer-controller"
-
-    # need vpc id?
-    helm_chart_values = [
-      <<-EOT
-      clusterName: ${local.project}-cluster
-      serviceAccount:
-        create: true
-        name: aws-load-balancer-controller
-      region: ${local.region}
-      EOT
-    ]
+    addon_name    = "aws-ebs-csi-driver"
+    addon_version = "v1.48.0-eksbuild.1"
 
     tags = {
-      Name        = "aws-load-balancer-controller"
-      Environment = "development"
-      Purpose     = "Load-Balancer-Controller"
+      Name = "${local.project}-${local.env}-ebs-csi-addon"
     }
   }
 }
 
-unit "additional_iam_roles" {
-  source = "../../../../../units/iam-role"
-  path   = "additional-iam-roles"
+unit "aws-lbc" {
+  source = "../../../../../units/eks-managed/aws-lbc"
+  path   = "aws-lbc"
 
   values = {
+    enable_aws_load_balancer_controller = true
+
     eks_path = "../eks"
-
-    role_name = "external-dns-role"
-
-    namespace_service_accounts = ["kube-system:external-dns"]
-
-    attach_external_dns_policy = true
-
-    role_policy_arns = {}
+    vpc_path = "../vpc"
 
     tags = {
-      Name        = "external-dns-role"
-      Environment = "development"
-      Purpose     = "External-DNS"
+      Name = "${local.project}-${local.env}-aws-lbc"
     }
   }
 }
