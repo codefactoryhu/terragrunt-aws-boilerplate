@@ -18,7 +18,7 @@ locals {
   allow_origins = ["https://exakmpledomain.com", "https://app.exakmpledomain.com"]
   {{ end }}
 }
-{{ if or (eq .InfrastructurePreset "vpc") (eq .InfrastructurePreset "eks-auto") (eq .InfrastructurePreset "eks-managed") (eq .InfrastructurePreset "serverless") }}
+{{ if or (eq .InfrastructurePreset "vpc") (eq .InfrastructurePreset "eks-auto") (eq .InfrastructurePreset "serverless") }}
 unit "vpc" {
   source = "../../../../../units/vpc"
   path   = "vpc"
