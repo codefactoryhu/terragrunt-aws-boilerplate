@@ -25,7 +25,8 @@ The main branch automatically guides you through selecting the most appropriate 
 
 
 ```bash
-boilerplate --template-url "github.com/codefactoryhu/boilerplate-aws//terragrunt-boilerplate?ref=main" --output-folder ./my-project
+boilerplate --template-url "github.com/codefactoryhu/terragrunt-aws-boilerplate//terragrunt-boilerplate?ref=main" \
+--output-folder ./new-boiler
 ```
 
 This command will guide you through the templating process.
