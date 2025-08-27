@@ -12,7 +12,7 @@ locals {
 
 {{- if has "vpc" .Units }}
 unit "vpc" {
-  source = "../../units/vpc"
+  source = "../../units/stack/vpc"
   path   = "vpc"
 
   values = {
@@ -65,7 +65,7 @@ unit "vpc" {
 
 {{- if has "kms" .Units }}
 unit "kms" {
-  source = "../../units/kms"
+  source = "../../units/stack/kms"
   path   = "kms"
 
   values = {
@@ -89,7 +89,7 @@ unit "kms" {
 
 {{- if has "route53-zones" .Units }}
 unit "route53_zones" {
-  source = "../../units/route53-zones"
+  source = "../../units/stack/route53-zones"
   path   = "route53-zones"
 
   values = {
@@ -111,7 +111,7 @@ unit "route53_zones" {
 
 {{- if has "acm" .Units }}
 unit "acm" {
-  source = "../../units/acm"
+  source = "../../units/stack/acm"
   path   = "acm"
 
   values = {
@@ -131,7 +131,7 @@ unit "acm" {
 
 {{- if has "webacl" .Units }}
 unit "webacl" {
-  source = "../../units/webacl"
+  source = "../../units/stack/webacl"
   path   = "webacl"
 
   values = {
@@ -178,7 +178,7 @@ unit "webacl" {
 
 {{- if has "s3" .Units }}
 unit "s3" {
-  source = "../../units/s3"
+  source = "../../units/stack/s3"
   path   = "s3"
 
   values = {
@@ -243,7 +243,7 @@ resource "random_string" "bucket_suffix" {
 
 {{- if has "cloudfront" .Units }}
 unit "cloudfront" {
-  source = "../../units/cloudfront"
+  source = "../../units/stack/cloudfront"
   path   = "cloudfront"
 
   values = {
@@ -293,7 +293,7 @@ unit "cloudfront" {
 
 {{- if has "route53" .Units }}
 unit "route53_records" {
-  source = "../../units/route53"
+  source = "../../units/stack/route53"
   path   = "route53-records"
 
   values = {
@@ -332,7 +332,7 @@ unit "route53_records" {
 
 {{- if has "secrets-manager" .Units }}
 unit "secrets_manager" {
-  source = "../../units/secrets-manager"
+  source = "../../units/stack/secrets-manager"
   path   = "secrets-manager"
 
   values = {
@@ -367,7 +367,7 @@ unit "secrets_manager" {
 
 {{- if has "rds-lambda" .Units }}
 unit "rds" {
-  source = "../../units/rds-lambda"
+  source = "../../units/stack/rds-lambda"
   path   = "rds"
 
   values = {
@@ -434,7 +434,7 @@ unit "rds" {
 
 {{- if has "lambda" .Units }}
 unit "lambda" {
-  source = "../../units/lambda"
+  source = "../../units/stack/lambda"
   path   = "lambda"
 
   values = {
@@ -483,7 +483,7 @@ unit "lambda" {
 
 {{- if has "api-gateway" .Units }}
 unit "api_gateway" {
-  source = "../../units/api-gateway"
+  source = "../../units/stack/api-gateway"
   path   = "api-gateway"
 
   values = {
@@ -532,7 +532,7 @@ unit "api_gateway" {
 
 {{- if has "eks" .Units }}
 unit "eks" {
-  source = "../../units/eks"
+  source = "../../units/stack/eks"
   path   = "eks"
 
   values = {
@@ -593,7 +593,7 @@ unit "eks" {
 
 {{- if has "ebs-csi-driver" .Units }}
 unit "ebs_csi_driver" {
-  source = "../../units/ebs-csi-driver"
+  source = "../../units/stack/ebs-csi-driver"
   path   = "ebs-csi-driver"
 
   values = {
@@ -621,7 +621,7 @@ unit "ebs_csi_driver" {
 
 {{- if has "aws-lbc" .Units }}
 unit "aws_load_balancer_controller" {
-  source = "../../units/aws-lbc"
+  source = "../../units/stack/aws-lbc"
   path   = "aws-load-balancer-controller"
 
   values = {
@@ -660,7 +660,7 @@ unit "aws_load_balancer_controller" {
 
 {{- if has "iam-role" .Units }}
 unit "additional_iam_roles" {
-  source = "../../units/iam-role"
+  source = "../../units/stack/iam-role"
   path   = "additional-iam-roles"
 
   values = {
@@ -686,7 +686,7 @@ unit "additional_iam_roles" {
 
 {{- if has "cloudwatch-log-group" .Units }}
 unit "cloudwatch_log_group" {
-  source = "../../units/cloudwatch-log-group"
+  source = "../../units/stack/cloudwatch-log-group"
   path   = "cloudwatch-log-group"
 
   values = {
@@ -721,7 +721,7 @@ unit "cloudwatch_log_group" {
 
 {{- if has "kms-serverless" .Units }}
 unit "kms_serverless" {
-  source = "../../units/kms-serverless"
+  source = "../../units/stack/kms-serverless"
   path   = "kms-serverless"
 
   values = {
@@ -745,7 +745,7 @@ unit "kms_serverless" {
 
 {{- if has "security-group" .Units }}
 unit "security_group" {
-  source = "../../units/security-group"
+  source = "../../units/stack/security-group"
   path   = "security-group"
 
   values = {
@@ -811,7 +811,7 @@ unit "security_group" {
 
 {{- if has "sqs-dlq" .Units }}
 unit "sqs_dlq" {
-  source = "../../units/sqs-dlq"
+  source = "../../units/stack/sqs-dlq"
   path   = "sqs-dlq"
 
   values = {
