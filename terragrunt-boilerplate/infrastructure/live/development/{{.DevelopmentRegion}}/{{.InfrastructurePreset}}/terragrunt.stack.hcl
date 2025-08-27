@@ -5,7 +5,7 @@ locals {
   project_version = "{{.ProjectVersion}}"
 
   development_account_id    = "{{.DevelopmentAccountId}}"
-  development_account_email = "{{.EmailDomain}}"
+  development_account_email = "{{.DevelopmentEmail}}"
   organization_id           = "{{.OrganizationId}}"
   organization_root_id      = "{{.OrganizationRootId}}"
   {{ if eq .InfrastructurePreset "web" }}
