@@ -2,12 +2,6 @@
 opentofu = "{{.OpentofuVersion}}"
 terragrunt = "{{.TerragruntVersion}}"
 
-pre-commit = "4.2.0"
-tflint = "0.58.0"
-tfsec = "1.28.14"
-checkov = "3.2.447"
-gitleaks = "8.27.1"
-
 [env]
 PROJECT_NAME = "{{.ProjectName}}"
 PROJECT_VERSION = "{{.ProjectVersion}}"
