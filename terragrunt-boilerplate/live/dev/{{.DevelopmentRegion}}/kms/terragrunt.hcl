@@ -43,5 +43,7 @@ inputs = {
 
   deletion_window_in_days = try(include.env.locals.kms_deletion_window_in_days, 7)
 
-  tags = try(include.env.locals.kms_tags, {})
+  tags = include.env.locals.tags
 }
+
+skip = include.env.locals.skip_module.kms

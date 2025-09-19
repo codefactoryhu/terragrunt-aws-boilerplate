@@ -58,7 +58,7 @@ inputs = {
     Type = "Database"
   })
 
-  tags = try(include.env.locals.vpc_tags, {})
+  tags = include.env.locals.tags
 }
 
 skip = include.env.locals.skip_module.vpc

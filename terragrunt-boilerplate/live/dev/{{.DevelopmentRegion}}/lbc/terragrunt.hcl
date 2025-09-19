@@ -82,7 +82,7 @@ inputs = {
     ]
   }
 
-  tags = try(values.tags, {
-    Name = "${local.project}-${local.env}-aws-lbc"
-  })
+  tags = include.env.locals.tags
 }
+
+skip = include.env.locals.skip_module.lbc

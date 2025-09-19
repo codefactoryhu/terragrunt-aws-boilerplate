@@ -70,7 +70,7 @@ inputs = {
 
   authentication_mode = "API"
 
-  tags = try(include.locals.eks_tags, {
-    Name = "${local.project}-${local.env}-eks"
-  })
+  tags = include.env.locals.tags
 }
+
+skip = include.env.locals.skip_module.eks

@@ -18,3 +18,5 @@ inputs = {
 
   tags = include.env.locals.tags
 }
+
+skip = include.env.locals.skip_module.cross-account

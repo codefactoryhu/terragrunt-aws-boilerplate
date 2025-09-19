@@ -33,7 +33,7 @@ inputs = {
   addon_name                  = include.locals.ebs_csi_addon_name
   addon_version               = include.locals.ebs_csi_addon_version
 
-  tags = try(include.locals.ebs_csi_tags, {
-    Name = "${include.locals.ebs_csi_cluster_name}-${include.locals.ebs_csi_addon_name}-addon"
-  })
+  tags = include.env.locals.tags
 }
+
+skip = include.env.locals.skip_module.ebs-csi

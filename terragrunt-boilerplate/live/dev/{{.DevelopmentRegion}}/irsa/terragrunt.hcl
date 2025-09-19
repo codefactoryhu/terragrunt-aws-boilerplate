@@ -43,5 +43,7 @@ inputs = {
   role_policy_arns = try(include.locals.ebs_irsa_role_policy_arns, {})
   allow_self_assume_role = try(include.locals.ebs_irsa_allow_self_assume_role, false)
 
-  tags = try(include.locals.ebs_irsa_tags, {})
+  tags = include.env.locals.tags
 }
+
+skip = include.env.locals.skip_module.irsa
