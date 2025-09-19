@@ -14,7 +14,7 @@ include "env" {
 
 dependency "eks" {
   config_path = "${get_original_terragrunt_dir()}/../eks"
-  mock_outputs = {
+mock_outputs = {
     cluster_oidc_issuer_url = "https://oidc.eks.us-east-1.amazonaws.com/id/0000000000000000"
     oidc_provider_arn       = "arn:aws:iam::123456789012:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/0000000000000000"
   }
