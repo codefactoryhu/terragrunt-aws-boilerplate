@@ -47,8 +47,8 @@ locals {
   ]
 
   #CROSS_ACCOUNT_ROLE
-  corss_account_role_trusted_account_arn         = "arn:aws:iam::<ACCOUNT_ID>:role/aws-reserved/sso.amazonaws.com/eu-central-1/<ROLE_NAME>"
-  corss_account_role_name = "eks-cross-account-access"
+  cross_account_role_trusted_account_arn         = "arn:aws:iam::<ACCOUNT_ID>:role/aws-reserved/sso.amazonaws.com/eu-central-1/<ROLE_NAME>"
+  cross_account_role_name = "eks-cross-account-access"
 
   # EKS
   eks_name               = "${local.env}-eks"
@@ -71,7 +71,7 @@ locals {
         }
       }
     },
-    cross-accoount = {
+    cross-account = {
       principal_arn = "arn:aws:iam::<ACCOUNT_ID>:role/eks-cross-account-access"
 
       policy_associations = {
