@@ -39,15 +39,12 @@ locals {
   vpc_cluster_name = "${local.env}-eks"
 
   # KMS
-  kms_description = "KMS key for EKS cluster encryption"
   kms_aliases     = ["alias/eks-cluster-encryption-terragrunt"]
 
   kms_key_administrators = [
     "arn:aws:iam::${local.development_account_id}:root",
     "arn:aws:iam::${local.development_account_id}:role/terragrunt-execution-role"
   ]
-
-  kms_deletion_window_in_days = 7
 
   #CROSS_ACCOUNT_ROLE
   corss_account_role_trusted_account_arn         = "arn:aws:iam::<ACCOUNT_ID>:role/aws-reserved/sso.amazonaws.com/eu-central-1/<ROLE_NAME>"
@@ -98,7 +95,6 @@ locals {
   ebs_irsa_role_name                  = "${local.project}-${local.env}-ebs-irsa"
   ebs_irsa_namespace_service_accounts = ["kube-system:ebs-csi-controller-sa"]
   ebs_irsa_attach_ebs_csi_policy = true
-
 
   # EBS CSI Addon
   ebs_csi_addon_name    = "aws-ebs-csi-driver"
