@@ -1,5 +1,5 @@
 terraform {
-  source = "git::git@github.com:terraform-aws-modules/terraform-aws-iam//modules/iam-role-for-service-accounts-eks?ref=v5.59.0"
+  source = "../../../../modules//eks-addon"
 }
 
 include "root" {
@@ -32,8 +32,6 @@ inputs = {
 
   addon_name                  = include.locals.ebs_csi_addon_name
   addon_version               = include.locals.ebs_csi_addon_version
-  resolve_conflicts_on_create = try(include.locals.ebs_csi_resolve_conflicts_on_create, "OVERWRITE")
-  resolve_conflicts_on_update = try(include.locals.ebs_csi_resolve_conflicts_on_update, "OVERWRITE")
 
   tags = try(include.locals.ebs_csi_tags, {
     Name = "${include.locals.ebs_csi_cluster_name}-${include.locals.ebs_csi_addon_name}-addon"
