@@ -281,6 +281,14 @@ variables:
       - required
       - semver
 
+skip_files:
+  - path: "**/ebs-csi/**/*"
+    if: '{{ if eq .InfrastructurePreset "eks-auto" }}'
+  - path: "**/lbc/**/*"
+    if: '{{ if eq .InfrastructurePreset "eks-auto" }}'
+  - path: "**/modules/eks-addon/**/*"
+    if: '{{ if eq .InfrastructurePreset "eks-auto" }}'
+
 hooks:
   before:
     - command: "bash"
