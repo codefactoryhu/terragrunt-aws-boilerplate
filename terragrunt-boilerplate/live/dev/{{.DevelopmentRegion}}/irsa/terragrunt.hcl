@@ -21,27 +21,15 @@ mock_outputs = {
 }
 
 inputs = {
-  role_name = include.locals.ebs_irsa_role_name
+  role_name                      = include.locals.ebs_irsa_role_name
+  attach_ebs_csi_policy          = include.locals.ebs_irsa_attach_ebs_csi_policy
 
   oidc_providers = {
     main = {
       provider_arn               = dependency.eks.outputs.oidc_provider_arn
-      namespace_service_accounts = try(include.locals.ebs_irsa_namespace_service_accounts, [])
+      namespace_service_accounts = include.locals.ebs_irsa_namespace_service_accounts
     }
   }
-
-  attach_aws_load_balancer_controller_policy = try(include.locals.ebs_irsa_attach_aws_load_balancer_controller_policy, false)
-  attach_external_dns_policy                 = try(include.locals.ebs_irsa_attach_external_dns_policy, false)
-  attach_external_secrets_policy             = try(include.locals.ebs_irsa_attach_external_secrets_policy, false)
-  attach_cert_manager_policy                 = try(include.locals.ebs_irsa_attach_cert_manager_policy, false)
-  attach_cluster_autoscaler_policy           = try(include.locals.ebs_irsa_attach_cluster_autoscaler_policy, false)
-  attach_ebs_csi_policy                      = try(include.locals.ebs_irsa_attach_ebs_csi_policy, false)
-  attach_efs_csi_policy                      = try(include.locals.ebs_irsa_attach_efs_csi_policy, false)
-  attach_fsx_lustre_csi_policy               = try(include.locals.ebs_irsa_attach_fsx_lustre_csi_policy, false)
-  attach_vpc_cni_policy                      = try(include.locals.ebs_irsa_attach_vpc_cni_policy, false)
-
-  role_policy_arns = try(include.locals.ebs_irsa_role_policy_arns, {})
-  allow_self_assume_role = try(include.locals.ebs_irsa_allow_self_assume_role, false)
 
   tags = include.env.locals.tags
 }

@@ -56,6 +56,7 @@ inputs = {
   vpc_id                   = dependency.vpc.outputs.vpc_id
   subnet_ids               = dependency.vpc.outputs.private_subnets
   control_plane_subnet_ids = dependency.vpc.outputs.private_subnets
+  authentication_mode      = include.env.locals.eks_authentication_mode
 
   eks_managed_node_groups = {
     example = {
@@ -67,8 +68,6 @@ inputs = {
       desired_size = include.locals.eks_desired_size
     }
   }
-
-  authentication_mode = "API"
 
   tags = include.env.locals.tags
 }

@@ -31,10 +31,6 @@ locals {
 
   vpc_enable_nat_gateway     = true
   vpc_single_nat_gateway     = true
-  vpc_one_nat_gateway_per_az = false
-
-  vpc_enable_dns_hostnames = true
-  vpc_enable_dns_support   = true
 
   vpc_enable_flow_log                      = false
   vpc_create_flow_log_cloudwatch_iam_role  = false
@@ -60,6 +56,7 @@ locals {
 
   eks_endpoint_public_access                   = true
   eks_enable_cluster_creator_admin_permissions = true
+  eks_authentication_mode                      = "API"
 
   eks_access_entries = {
     test = {

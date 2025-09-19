@@ -13,10 +13,9 @@ include "env" {
 }
 
 inputs = {
-  description = try(include.env.locals.kms_description, "KMS key for EKS cluster encryption")
-  key_usage   = try(include.env.locals.kms_key_usage, "ENCRYPT_DECRYPT")
-
-  key_administrators = try(include.env.locals.kms_key_administrators, [])
+  key_administrators  = include.env.locals.kms_key_administrators
+  aliases                 = try(include.env.locals.kms_aliases, [])
+  key_usage               = try(include.env.locals.kms_key_usage, "ENCRYPT_DECRYPT")
 
   key_statements = try(include.env.locals.kms_key_statements, [
     {
@@ -38,10 +37,6 @@ inputs = {
       resources = ["*"]
     }
   ])
-
-  aliases = try(include.env.locals.kms_aliases, [])
-
-  deletion_window_in_days = try(include.env.locals.kms_deletion_window_in_days, 7)
 
   tags = include.env.locals.tags
 }
