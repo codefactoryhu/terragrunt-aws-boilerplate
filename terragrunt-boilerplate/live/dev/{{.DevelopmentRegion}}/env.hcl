@@ -16,7 +16,6 @@ locals {
     ebs-csi               = false
     eks                   = false
     irsa                  = false
-    kms                   = false
     lbc                   = false
     vpc                   = false
   }
@@ -37,14 +36,6 @@ locals {
   vpc_create_flow_log_cloudwatch_log_group = false
 
   vpc_cluster_name = "${local.env}-eks"
-
-  # KMS
-  kms_aliases     = ["alias/eks-cluster-encryption-terragrunt"]
-
-  kms_key_administrators = [
-    "arn:aws:iam::${local.account_id}:root",
-    "arn:aws:iam::${local.account_id}:role/terragrunt-execution-role"
-  ]
 
   #CROSS_ACCOUNT_ROLE
   cross_account_role_trusted_account_arn         = "arn:aws:iam::<ACCOUNT_ID>:role/aws-reserved/sso.amazonaws.com/eu-central-1/<ROLE_NAME>"

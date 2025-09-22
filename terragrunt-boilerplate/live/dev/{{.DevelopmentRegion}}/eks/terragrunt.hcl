@@ -21,13 +21,6 @@ dependency "vpc" {
   }
 }
 
-dependency "kms" {
-  config_path = "${get_original_terragrunt_dir()}/../kms"
-  mock_outputs = {
-    key_arn = "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012"
-  }
-}
-
 inputs = {
   name               = include.env.locals.eks_name
   kubernetes_version = include.env.locals.eks_kubernetes_version
@@ -41,11 +34,6 @@ inputs = {
     vpc-cni = {
       before_compute = true
     }
-  }
-
-  cluster_encryption_config = {
-    provider_key_arn = dependency.kms.outputs.key_arn
-    resources        = ["secrets"]
   }
 
   endpoint_public_access                   = include.env.locals.eks_endpoint_public_access
