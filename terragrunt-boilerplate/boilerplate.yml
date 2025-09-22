@@ -2,8 +2,6 @@ variables:
   - name: InfrastructurePreset
     description: |
       Choose your AWS infrastructure setup:
-      • eks-auto       (vpc, eks-automod)
-      • eks-managed    (vpc, eks-managed-nodegroup)
     order: 15
     type: enum
     options:
@@ -154,26 +152,17 @@ hooks:
       args:
         - "-c"
         - |
-          COLOR_GREEN="\033[1;32m"
-          COLOR_HIGHLIGHT="\033[1;33m"
-          COLOR_RESET="\033[0m"
-
-          echo -e "${COLOR_GREEN} Code Factory Terragrunt Stack Boilerplate${COLOR_RESET}"
-          echo -e "${COLOR_GREEN} Starting Terragrunt Stack generation for ${COLOR_HIGHLIGHT}{{.InfrastructurePreset}}${COLOR_RESET}...${COLOR_RESET}"
+          echo -e Code Factory Terragrunt"
+          echo -e Starting Terragrunt Stack generation for {{.InfrastructurePreset}}"
 
   after:
     - command: "bash"
       args:
         - "-c"
         - |
-          COLOR_SUCCESS="\033[1;32m"
-          COLOR_HIGHLIGHT="\033[1;33m"
-          COLOR_COMMAND="\033[1;37m"
-          COLOR_RESET="\033[0m"
-
           echo ""
-          echo -e "${COLOR_SUCCESS} Terragrunt Stack generated successfully!${COLOR_RESET}"
-          echo -e "${COLOR_COMMAND} Next steps:"
-          echo -e "${COLOR_COMMAND}   1. mise trust && mise install"
-          echo -e "${COLOR_COMMAND}   2. Configure AWS credentials"
-          echo -e "${COLOR_COMMAND}   3. Review and customize the configuration${COLOR_RESET}"
+          echo -e  Terragrunt Stack generated successfully!"
+          echo -e "Next steps:"
+          echo -e "   1. mise trust && mise install"
+          echo -e "   2. Configure AWS credentials"
+          echo -e "   3. Review and customize the configuration"
