@@ -12,7 +12,7 @@ locals {
 
   # Skip modules
   skip_module = {
-    cross-account         = false
+    cross-account         = true
     ebs-csi               = false
     eks                   = false
     irsa                  = false
