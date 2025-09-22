@@ -21,16 +21,10 @@ dependency "vpc" {
   }
 }
 
-dependency "kms" {
-  config_path = "${get_original_terragrunt_dir()}/../kms"
-  mock_outputs = {
-    key_arn = "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012"
-  }
-}
-
+{{ if eq .InfrastructurePreset "eks-managed" }}
 inputs = {
-  name               = include.locals.eks_name
-  kubernetes_version = include.locals.eks_kubernetes_version
+  name               = include.env.locals.eks_name
+  kubernetes_version = include.env.locals.eks_kubernetes_version
 
   addons = {
     coredns = {}
@@ -43,15 +37,10 @@ inputs = {
     }
   }
 
-  cluster_encryption_config = {
-    provider_key_arn = dependency.kms.outputs.key_arn
-    resources        = ["secrets"]
-  }
+  endpoint_public_access                   = include.env.locals.eks_endpoint_public_access
+  enable_cluster_creator_admin_permissions = include.env.locals.eks_enable_cluster_creator_admin_permissions
 
-  endpoint_public_access                   = include.locals.eks_endpoint_public_access
-  enable_cluster_creator_admin_permissions = include.locals.eks_enable_cluster_creator_admin_permissions
-
-  access_entries = include.locals.eks_access_entries
+  access_entries = include.env.locals.eks_access_entries
 
   vpc_id                   = dependency.vpc.outputs.vpc_id
   subnet_ids               = dependency.vpc.outputs.private_subnets
@@ -61,15 +50,34 @@ inputs = {
   eks_managed_node_groups = {
     example = {
       ami_type       = "AL2023_x86_64_STANDARD"
-      instance_types = include.locals.eks_instance_types
+      instance_types = include.env.locals.eks_instance_types
 
-      min_size     = include.locals.eks_min_size
-      max_size     = include.locals.eks_max_size
-      desired_size = include.locals.eks_desired_size
+      min_size     = include.env.locals.eks_min_size
+      max_size     = include.env.locals.eks_max_size
+      desired_size = include.env.locals.eks_desired_size
     }
   }
 
   tags = include.env.locals.tags
 }
+{{ end }}
+{{ if eq .InfrastructurePreset "eks-auto" }}
+
+inputs = {
+  name               = include.env.locals.eks_name
+  kubernetes_version = include.env.locals.eks_kubernetes_version
+
+  endpoint_public_access = include.env.locals.eks_endpoint_public_access
+  enable_cluster_creator_admin_permissions = include.env.locals.eks_enable_cluster_creator_admin_permissions
+
+  compute_config = include.env.locals.eks_compute_config
+  access_entries = include.env.locals.eks_access_entries
+
+  vpc_id     = dependency.vpc.outputs.vpc_id
+  subnet_ids = dependency.vpc.outputs.private_subnets
+
+  tags = include.env.locals.tags
+}
+{{ end }}
 
 skip = include.env.locals.skip_module.eks
