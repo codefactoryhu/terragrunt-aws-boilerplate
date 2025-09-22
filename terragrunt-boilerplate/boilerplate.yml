@@ -281,6 +281,20 @@ variables:
       - required
       - semver
 
+skip_files:
+  - path: "./live/**/cross-account/*"
+    if: '{{ eq .InfrastructurePreset "eks-auto" }}'
+  - path: "./live/**/ebs-csi/*"
+    if: '{{ eq .InfrastructurePreset "eks-auto" }}'
+  - path: "./live/**/irsa/*"
+    if: '{{ eq .InfrastructurePreset "eks-auto" }}'
+  - path: "./live/**/lbc/*"
+    if: '{{ eq .InfrastructurePreset "eks-auto" }}'
+  - path: "./live/**/kms/*"
+    if: '{{ eq .InfrastructurePreset "eks-auto" }}'
+  - path: "./modules/**/*"
+    if: '{{ eq .InfrastructurePreset "eks-auto" }}'
+
 hooks:
   before:
     - command: "bash"
