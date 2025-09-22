@@ -21,6 +21,7 @@ dependency "vpc" {
   }
 }
 
+{{ if eq .InfrastructurePreset "eks-managed" }}
 inputs = {
   name               = include.env.locals.eks_name
   kubernetes_version = include.env.locals.eks_kubernetes_version
@@ -59,5 +60,24 @@ inputs = {
 
   tags = include.env.locals.tags
 }
+{{ end }}
+{{ if eq .InfrastructurePreset "eks-auto" }}
+
+inputs = {
+  name               = include.env.locals.eks_name
+  kubernetes_version = include.env.locals.eks_kubernetes_version
+
+  endpoint_public_access = include.env.locals.eks_endpoint_public_access
+  enable_cluster_creator_admin_permissions = include.env.locals.eks_enable_cluster_creator_admin_permissions
+
+  compute_config = include.env.locals.eks_compute_config
+  access_entries = include.env.locals.eks_access_entries
+
+  vpc_id     = dependency.vpc.outputs.vpc_id
+  subnet_ids = dependency.vpc.outputs.private_subnets
+
+  tags = include.env.locals.tags
+}
+{{ end }}
 
 skip = include.env.locals.skip_module.eks

@@ -19,7 +19,6 @@ locals {
     lbc                   = false
     vpc                   = false
   }
-  {{ if eq .InfrastructurePreset "eks-managed" }}
   # VPC
   vpc_name = "${local.project}-${local.env}-vpc"
   vpc_cidr = "10.0.0.0/16"
@@ -36,7 +35,7 @@ locals {
   vpc_create_flow_log_cloudwatch_log_group = false
 
   vpc_cluster_name = "${local.env}-eks"
-
+  {{ if eq .InfrastructurePreset "eks-managed" }}
   #CROSS_ACCOUNT_ROLE
   cross_account_role_trusted_account_arn         = "arn:aws:iam::<ACCOUNT_ID>:role/aws-reserved/sso.amazonaws.com/eu-central-1/<ROLE_NAME>"
   cross_account_role_name = "eks-cross-account-access"
@@ -51,7 +50,7 @@ locals {
 
   eks_access_entries = {
     test = {
-      principal_arn = "arn:aws:iam::<ACCOUNT_ID>:role/aws-reserved/sso.amazonaws.com/<AWS_REGION>/<ROLE_NAME>"
+      principal_arn = "arn:aws:iam::${local.account_id}:role/aws-reserved/sso.amazonaws.com/${local.region}/<ROLE_NAME>"
 
       policy_associations = {
         admin = {
@@ -95,7 +94,35 @@ locals {
   # Load Balancer Controller
   lbc_enable_aws_load_balancer_controller = true
   {{ end }}
+  {{ if eq .InfrastructurePreset "eks-auto" }}
+  #EKS
+  eks_name               = "${local.env}-eks"
+  eks_kubernetes_version = "1.33"
 
+  eks_endpoint_public_access                   = true
+  eks_enable_cluster_creator_admin_permissions = true
+
+  eks_compute_config = {
+    enabled    = true
+    node_pools = ["general-purpose"]
+  }
+
+  eks_access_entries = {
+    test = {
+      principal_arn = "arn:aws:iam::${local.account_id}:role/aws-reserved/sso.amazonaws.com/${local.region}/<ROLE_NAME>"
+
+      policy_associations = {
+        admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = {
+            namespace = []
+            type      = "cluster"
+          }
+        }
+      }
+    }
+  }
+  {{ end }}
   tags = {
     Name            = "${local.env}-${local.project}"
     Environment     = "${local.env}"
