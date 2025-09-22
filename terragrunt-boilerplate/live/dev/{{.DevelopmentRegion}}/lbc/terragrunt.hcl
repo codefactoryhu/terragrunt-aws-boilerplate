@@ -61,7 +61,7 @@ EOF
 }
 
 inputs = {
-  enable_aws_load_balancer_controller = include.env.locals.enable_aws_load_balancer_controller
+  enable_aws_load_balancer_controller = include.env.locals.lbc_enable_aws_load_balancer_controller
 
   cluster_name      = dependency.eks.outputs.cluster_name
   cluster_endpoint  = dependency.eks.outputs.cluster_endpoint

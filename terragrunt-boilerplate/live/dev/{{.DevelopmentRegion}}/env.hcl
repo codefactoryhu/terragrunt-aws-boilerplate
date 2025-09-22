@@ -42,8 +42,8 @@ locals {
   kms_aliases     = ["alias/eks-cluster-encryption-terragrunt"]
 
   kms_key_administrators = [
-    "arn:aws:iam::${local.development_account_id}:root",
-    "arn:aws:iam::${local.development_account_id}:role/terragrunt-execution-role"
+    "arn:aws:iam::${local.account_id}:root",
+    "arn:aws:iam::${local.account_id}:role/terragrunt-execution-role"
   ]
 
   #CROSS_ACCOUNT_ROLE

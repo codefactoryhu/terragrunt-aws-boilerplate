@@ -30,8 +30,8 @@ inputs = {
   cluster_name                = dependency.eks.outputs.cluster_name
   service_account_role_arn    = dependency.irsa.outputs.iam_role_arn
 
-  addon_name                  = include.locals.ebs_csi_addon_name
-  addon_version               = include.locals.ebs_csi_addon_version
+  addon_name                  = include.env.locals.ebs_csi_addon_name
+  addon_version               = include.env.locals.ebs_csi_addon_version
 
   tags = include.env.locals.tags
 }

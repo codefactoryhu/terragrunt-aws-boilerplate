@@ -29,8 +29,8 @@ dependency "kms" {
 }
 
 inputs = {
-  name               = include.locals.eks_name
-  kubernetes_version = include.locals.eks_kubernetes_version
+  name               = include.env.locals.eks_name
+  kubernetes_version = include.env.locals.eks_kubernetes_version
 
   addons = {
     coredns = {}
@@ -48,10 +48,10 @@ inputs = {
     resources        = ["secrets"]
   }
 
-  endpoint_public_access                   = include.locals.eks_endpoint_public_access
-  enable_cluster_creator_admin_permissions = include.locals.eks_enable_cluster_creator_admin_permissions
+  endpoint_public_access                   = include.env.locals.eks_endpoint_public_access
+  enable_cluster_creator_admin_permissions = include.env.locals.eks_enable_cluster_creator_admin_permissions
 
-  access_entries = include.locals.eks_access_entries
+  access_entries = include.env.locals.eks_access_entries
 
   vpc_id                   = dependency.vpc.outputs.vpc_id
   subnet_ids               = dependency.vpc.outputs.private_subnets
@@ -61,11 +61,11 @@ inputs = {
   eks_managed_node_groups = {
     example = {
       ami_type       = "AL2023_x86_64_STANDARD"
-      instance_types = include.locals.eks_instance_types
+      instance_types = include.env.locals.eks_instance_types
 
-      min_size     = include.locals.eks_min_size
-      max_size     = include.locals.eks_max_size
-      desired_size = include.locals.eks_desired_size
+      min_size     = include.env.locals.eks_min_size
+      max_size     = include.env.locals.eks_max_size
+      desired_size = include.env.locals.eks_desired_size
     }
   }
 
