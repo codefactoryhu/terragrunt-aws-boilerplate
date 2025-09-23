@@ -147,8 +147,6 @@ skip_files:
     if: '{{ eq .InfrastructurePreset "eks-auto" }}'
   - path: "./live/**/lbc/*"
     if: '{{ eq .InfrastructurePreset "eks-auto" }}'
-  - path: "./live/**/kms/*"
-    if: '{{ eq .InfrastructurePreset "eks-auto" }}'
   - path: "./modules/**/*"
     if: '{{ eq .InfrastructurePreset "eks-auto" }}'
 
