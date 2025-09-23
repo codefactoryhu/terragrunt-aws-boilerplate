@@ -5,5 +5,3 @@ terragrunt = "{{.TerragruntVersion}}"
 [env]
 PROJECT_NAME = "{{.ProjectName}}"
 PROJECT_VERSION = "{{.ProjectVersion}}"
-
-TG_PARALLELISM = "5"
