@@ -1,4 +1,3 @@
-# boilerplate:skip
 name: checkov
 
 on:
@@ -38,6 +37,7 @@ permissions:
   contents: read
 
 jobs:
+  # boilerplate:skip
   checkov-plan:
     runs-on: ubuntu-latest
     container:
