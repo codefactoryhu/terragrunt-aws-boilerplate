@@ -9,7 +9,7 @@ PROJECT_VERSION = "{{.ProjectVersion}}"
 [tasks.role]
 description = "apply an account file to an account with terragrunt-execution-role"
 usage = '''
-arg "account_file" "account_file" default="development"
+arg "account_file" "account-file" default="./account-files/dev.json"
 '''
 run = '''
 #!/bin/bash
