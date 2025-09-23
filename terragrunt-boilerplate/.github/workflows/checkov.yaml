@@ -1,4 +1,5 @@
-name: checkov-plan
+# boilerplate:skip
+name: checkov
 
 on:
   workflow_dispatch:
@@ -28,6 +29,9 @@ on:
         description: "terragrunt-unit"
         required: true
         default: "vpc"
+      accountId:
+        description: "environment-account-id"
+        required: true
 
 permissions:
   id-token: write
@@ -45,7 +49,7 @@ jobs:
       - name: aws configure
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::{{.DevelopmentAccountId}}:role/terragrunt-execution-role
+          role-to-assume: arn:aws:iam::${{ github.event.inputs.accountId }}:role/terragrunt-execution-role
           aws-region: eu-central-1
 
       - name: check plan
