@@ -21,13 +21,13 @@ mock_outputs = {
 }
 
 inputs = {
-  role_name                      = include.locals.ebs_irsa_role_name
-  attach_ebs_csi_policy          = include.locals.ebs_irsa_attach_ebs_csi_policy
+  role_name                      = include.env.locals.ebs_irsa_role_name
+  attach_ebs_csi_policy          = include.env.locals.ebs_irsa_attach_ebs_csi_policy
 
   oidc_providers = {
     main = {
       provider_arn               = dependency.eks.outputs.oidc_provider_arn
-      namespace_service_accounts = include.locals.ebs_irsa_namespace_service_accounts
+      namespace_service_accounts = include.env.locals.ebs_irsa_namespace_service_accounts
     }
   }
 
