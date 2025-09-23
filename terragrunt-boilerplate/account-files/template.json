@@ -1,0 +1,35 @@
+{
+  "account_id": "<ACCOUNT_ID>",
+  "name": "<ENV>",
+  "policies": {
+    "trust": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Principal": {
+            "AWS": ["arn:aws:iam::${account_id}:root"],
+            "Service": "vpc-flow-logs.amazonaws.com"
+          },
+          "Action": "sts:AssumeRole"
+        }
+      ]
+    },
+    "inline": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": "<ACTION_ON_RESOURCE>",
+          "Resource": "<RESOURCE_ARN>"
+        },
+        {
+          "Effect": "Allow",
+          "Action": "<ACTION_ON_RESOURCE>",
+          "Resource": "<RESOURCE_ARN>"
+        }
+      ]
+    },
+    "managed": ["<AWS_MANAGED_POLICY>", "<AWS_MANAGED_POLICY>"]
+  }
+}
