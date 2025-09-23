@@ -3,6 +3,7 @@ variables:
     type: enum
     options:
       - classic-single-account
+      - classic-multi-account
       - single-account
       - multi-account
       - terragrunt-stack
@@ -14,4 +15,4 @@ hooks:
     - command: bash
       args:
         - -c
-        - '{{ if eq .Type "single-account" }}boilerplate --template-url "github.com/codefactoryhu/terragrunt-aws-boilerplate//terragrunt-boilerplate?ref=single-account" --output-folder {{ outputFolder }}{{ else if eq .Type "multi-account" }}boilerplate --template-url "github.com/codefactoryhu/terragrunt-aws-boilerplate//terragrunt-boilerplate?ref=multi-account" --output-folder {{ outputFolder }}{{ else if eq .Type "classic-single-account" }}boilerplate --template-url "github.com/codefactoryhu/terragrunt-aws-boilerplate//terragrunt-boilerplate?ref=classic-single-account" --output-folder {{ outputFolder }}{{ else if eq .Type "terragrunt-stack" }}boilerplate --template-url "github.com/codefactoryhu/terragrunt-aws-boilerplate//terragrunt-boilerplate?ref=terragrunt-stack" --output-folder {{ outputFolder }}{{ end }}'
+        - '{{ if eq .Type "single-account" }}boilerplate --template-url "github.com/codefactoryhu/terragrunt-aws-boilerplate//terragrunt-boilerplate?ref=single-account" --output-folder {{ outputFolder }}{{ else if eq .Type "multi-account" }}boilerplate --template-url "github.com/codefactoryhu/terragrunt-aws-boilerplate//terragrunt-boilerplate?ref=multi-account" --output-folder {{ outputFolder }}{{ else if eq .Type "classic-single-account" }}boilerplate --template-url "github.com/codefactoryhu/terragrunt-aws-boilerplate//terragrunt-boilerplate?ref=classic-single-account" --output-folder {{ outputFolder }}{{ else if eq .Type "classic-multi-account" }}boilerplate --template-url "github.com/codefactoryhu/terragrunt-aws-boilerplate//terragrunt-boilerplate?ref=classic-multi-account" --output-folder {{ outputFolder }}{{ else if eq .Type "terragrunt-stack" }}boilerplate --template-url "github.com/codefactoryhu/terragrunt-aws-boilerplate//terragrunt-boilerplate?ref=terragrunt-stack" --output-folder {{ outputFolder }}{{ end }}'
