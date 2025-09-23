@@ -41,3 +41,71 @@ done
 
 aws iam put-role-policy --role-name "$role_name" --policy-name "inline-policy" --policy-document "$inline_policy"
 '''
+
+[tasks.checkov-plan]
+description = "Use checkov to scan and check a terragrunt stack."
+usage = '''
+arg "env" "environment" default="development"
+arg "region" "region" default="eu-central-1"
+arg "stack" "terragrunt-stack" default="vpc"
+'''
+run = '''
+#!/bin/bash -eux
+WORKDIR=infrastructure/live/$usage_env/$usage_region/$usage_stack
+TERRAGRUNT_CACHE=.terragrunt-stack/vpc/.terragrunt-cache
+
+terragrunt init --all --working-dir $WORKDIR
+terragrunt plan --all --working-dir $WORKDIR --out tfplan.binary
+
+BINARY="$(fd -H -i tfplan.binary $WORKDIR/$TERRAGRUNT_CACHE)"
+cd ./${BINARY%/*}
+tofu show -json tfplan.binary | jq > tfplan.json
+
+checkov -f tfplan.json --soft-fail
+'''
+
+[tasks.checkov-all]
+description = "Use checkov to scan and check all terragrunt infrastructure."
+run = '''
+#!/bin/bash -eux
+
+BIN_NAME=tfplan.binary
+JSON_NAME=tfplan.json
+JSON_DIR=json-plans
+
+convert_bin_to_json() {
+fd -HI -t f $BIN_NAME | while read -r FILE; do
+  INFRA_DIR=$(pwd)
+  cd $(dirname "$FILE")
+  tofu show -json $BIN_NAME | jq > $JSON_NAME
+  cd $INFRA_DIR
+done
+}
+
+collect_json() {
+mkdir -p $JSON_DIR
+INDEX=0
+fd -HI -t f tfplan.json | while read -r FILE; do
+  INDEX=$((INDEX + 1))
+  mv "$FILE" "$JSON_DIR/tfplan$INDEX.json"
+done
+}
+
+cd infrastructure
+terragrunt init --all
+terragrunt plan --all --out $BIN_NAME
+
+convert_bin_to_json
+collect_json
+
+checkov -d $JSON_DIR --soft-fail
+'''
+
+[tasks.checkov-tags]
+description = "Check if all resources have specific tags"
+depends = ['checkov-all']
+run = '''
+checkov -d infrastructure/json-plans \
+  --external-checks-dir ./custom-policies \
+  --check CKV2_TAG_2
+'''
