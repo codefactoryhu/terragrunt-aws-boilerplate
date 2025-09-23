@@ -1,0 +1,14 @@
+---
+metadata:
+  id: "CKV2_TAG_1"
+  name: "Ensure all resouces have 'Project: {{.ProjectName}} tag'"
+  category: "CONVENTION"
+  severity: "CRITICAL"
+
+definition:
+  cond_type: "attribute"
+  resource_types:
+    - "all"
+  attribute: "tags.Project"
+  operator: "equals"
+  value: "{{.ProjectName}}"

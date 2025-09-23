@@ -43,19 +43,19 @@ aws iam put-role-policy --role-name "$role_name" --policy-name "inline-policy" -
 '''
 
 [tasks.checkov-plan]
-description = "Use checkov to scan and check a terragrunt stack."
+description = "Use checkov to scan and check a terragrunt unit."
 usage = '''
 arg "env" "environment" default="development"
 arg "region" "region" default="eu-central-1"
-arg "stack" "terragrunt-stack" default="vpc"
+arg "unit" "terragrunt-unit" default="vpc"
 '''
 run = '''
 #!/bin/bash -eux
-WORKDIR=infrastructure/live/$usage_env/$usage_region/$usage_stack
-TERRAGRUNT_CACHE=.terragrunt-stack/vpc/.terragrunt-cache
+WORKDIR=./live/$usage_env/$usage_region/$usage_unit
+TERRAGRUNT_CACHE=.terragrunt-cache
 
-terragrunt init --all --working-dir $WORKDIR
-terragrunt plan --all --working-dir $WORKDIR --out tfplan.binary
+terragrunt init --working-dir $WORKDIR
+terragrunt plan --working-dir $WORKDIR --out tfplan.binary
 
 BINARY="$(fd -H -i tfplan.binary $WORKDIR/$TERRAGRUNT_CACHE)"
 cd ./${BINARY%/*}
@@ -71,7 +71,7 @@ run = '''
 
 BIN_NAME=tfplan.binary
 JSON_NAME=tfplan.json
-JSON_DIR=json-plans
+JSON_DIR=./checkov/json-plans
 
 convert_bin_to_json() {
 fd -HI -t f $BIN_NAME | while read -r FILE; do
@@ -91,7 +91,6 @@ fd -HI -t f tfplan.json | while read -r FILE; do
 done
 }
 
-cd infrastructure
 terragrunt init --all
 terragrunt plan --all --out $BIN_NAME
 
@@ -101,11 +100,14 @@ collect_json
 checkov -d $JSON_DIR --soft-fail
 '''
 
-[tasks.checkov-tags]
-description = "Check if all resources have specific tags"
+[tasks.checkov-custom]
+description = "Check a selected custom checkov policy"
+usage = '''
+arg "check_id" "checkov_check_id" default="CKV2_TAG_1"
+'''
 depends = ['checkov-all']
 run = '''
-checkov -d infrastructure/json-plans \
-  --external-checks-dir ./custom-policies \
-  --check CKV2_TAG_2
+checkov -d ./checkov/json-plans \
+  --external-checks-dir ./checkov \
+  --check $usage_check_id
 '''

@@ -128,6 +128,7 @@ locals {
   tags = {
     Name            = "${local.env}-${local.project}"
     Environment     = "${local.env}"
+    Project         = "${local.project}"
     Project-version = "${local.project_version}"
   }
 }
