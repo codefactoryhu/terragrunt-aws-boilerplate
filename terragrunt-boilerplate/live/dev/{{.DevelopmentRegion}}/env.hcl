@@ -36,14 +36,14 @@ locals {
   vpc_create_flow_log_cloudwatch_iam_role  = false
   vpc_create_flow_log_cloudwatch_log_group = false
 
-  vpc_cluster_name = "${local.env}-eks"
+  vpc_cluster_name = "${local.env}-${local.project}-eks"
   {{ if eq .InfrastructurePreset "eks-managed" }}
   #CROSS_ACCOUNT_ROLE
   cross_account_role_trusted_account_arn         = "arn:aws:iam::<ACCOUNT_ID>:role/aws-reserved/sso.amazonaws.com/eu-central-1/<ROLE_NAME>"
   cross_account_role_name = "eks-cross-account-access"
 
   # EKS
-  eks_name               = "${local.env}-eks"
+  eks_name               = "${local.env}-${local.project}-eks"
   eks_kubernetes_version = "1.33"
 
   eks_endpoint_public_access                   = true
@@ -98,7 +98,7 @@ locals {
   {{ end }}
   {{ if eq .InfrastructurePreset "eks-auto" }}
   #EKS
-  eks_name               = "${local.env}-eks"
+  eks_name               = "${local.env}-${local.project}-eks"
   eks_kubernetes_version = "1.33"
 
   eks_endpoint_public_access                   = true
