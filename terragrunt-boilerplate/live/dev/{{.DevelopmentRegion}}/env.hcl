@@ -12,11 +12,13 @@ locals {
 
   # Skip modules
   skip_module = {
+  {{ if eq .InfrastructurePreset "eks-managed" }}
     cross-account         = true
     ebs-csi               = false
-    eks                   = false
     irsa                  = false
     lbc                   = false
+  {{ end }}
+    eks                   = false
     vpc                   = false
   }
   # VPC
