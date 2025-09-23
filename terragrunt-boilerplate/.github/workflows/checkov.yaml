@@ -1,0 +1,107 @@
+name: checkov-plan
+
+on:
+  workflow_dispatch:
+    inputs:
+      checkSelected:
+        description: "Run checkov on a selected unit"
+        required: true
+        default: true
+        type: boolean
+      checkPolicy:
+        description: "Run a selected checkov policy"
+        default: none
+        type: choice
+        options:
+          - none
+          - CKV2_TAG_1
+
+      env:
+        description: "environment"
+        required: true
+        default: "dev"
+      region:
+        description: "region"
+        required: true
+        default: "eu-central-1"
+      unit:
+        description: "terragrunt-unit"
+        required: true
+        default: "vpc"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  checkov-plan:
+    runs-on: ubuntu-latest
+    container:
+      image: gergonullfuga/terragrunt:v2.1.0
+    steps:
+      - name: checkout
+        uses: actions/checkout@v5
+
+      - name: aws configure
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::{{.DevelopmentAccountId}}:role/terragrunt-execution-role
+          aws-region: eu-central-1
+
+      - name: check plan
+        if: ${{ github.event.inputs.checkSelected == 'true' }}
+        run: |
+          WORKDIR=./live/${{ github.event.inputs.env }}/${{ github.event.inputs.region }}/${{ github.event.inputs.unit }}
+          TERRAGRUNT_CACHE=.terragrunt-cache
+
+          terragrunt init --working-dir $WORKDIR
+          terragrunt plan --working-dir $WORKDIR --out tfplan.binary
+
+          BINARY="$(fdfind -H -i tfplan.binary $WORKDIR/$TERRAGRUNT_CACHE)"
+          cd ./${BINARY%/*}
+          tofu show -json tfplan.binary | jq > tfplan.json
+
+          checkov -f tfplan.json --soft-fail -o github_failed_only | tee -a $GITHUB_STEP_SUMMARY
+
+      - name: check all plan
+        if: ${{ github.event.inputs.checkSelected == 'false' }}
+        run: |
+          #!/bin/bash -eux
+
+          BIN_NAME=tfplan.binary
+          JSON_NAME=tfplan.json
+          JSON_DIR=checkov/json-plans
+
+          convert_bin_to_json() {
+          fdfind -HI -t f $BIN_NAME | while read -r FILE; do
+            INFRA_DIR=$(pwd)
+            cd $(dirname "$FILE")
+            tofu show -json $BIN_NAME | jq > $JSON_NAME
+            cd $INFRA_DIR
+          done
+          }
+
+          collect_json() {
+          mkdir -p $JSON_DIR
+          INDEX=0
+          fdfind -HI -t f tfplan.json | while read -r FILE; do
+            INDEX=$((INDEX + 1))
+            mv "$FILE" "$JSON_DIR/tfplan$INDEX.json"
+          done
+          }
+
+          terragrunt init --all
+          terragrunt plan --all --out $BIN_NAME
+
+          convert_bin_to_json
+          collect_json
+
+          checkov -d $JSON_DIR --soft-fail -o github_failed_only >> $GITHUB_STEP_SUMMARY
+
+      - name: check selected policy
+        if: ${{ github.event.inputs.checkSelected == 'false' && github.event.inputs.checkPolicy != 'none' }}
+        run: |
+          checkov -d checkov/json-plans \
+          --external-checks-dir ./checkov \
+          --check ${{ github.event.inputs.checkPolicy }} \
+          -o github_failed_only >> $GITHUB_STEP_SUMMARY
