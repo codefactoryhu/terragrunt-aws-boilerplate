@@ -126,7 +126,18 @@ locals {
   }
   {{ end }}
   {{ if eq .InfrastructurePreset "micro" }}
-  # hello micro
+  # ACM
+  acm_domain_name  = "my-domain.com"
+  acm_zone_id      = "Z2ES7B9AZ6SHAE"
+
+  acm_validation_method = "DNS"
+
+  acm_subject_alternative_names = [
+    "*.my-domain.com",
+    "app.sub.my-domain.com",
+  ]
+
+  acm_wait_for_validation = true
   {{ end }}
   tags = {
     Name            = "${local.env}-${local.project}"
