@@ -12,7 +12,7 @@ locals {
 
   # Skip modules
   skip_module = {
-  {{ if eq .InfrastructurePreset "eks-managed" }}
+  {{ if or (eq .InfrastructurePreset "eks-managed") (eq .InfrastructurePreset "micro") }}
     cross-account         = true
     ebs-csi               = false
     irsa                  = false
@@ -37,7 +37,7 @@ locals {
   vpc_create_flow_log_cloudwatch_log_group = false
 
   vpc_cluster_name = "${local.env}-${local.project}-eks"
-  {{ if eq .InfrastructurePreset "eks-managed" }}
+  {{ if or (eq .InfrastructurePreset "eks-managed") (eq .InfrastructurePreset "micro") }}
   #CROSS_ACCOUNT_ROLE
   cross_account_role_trusted_account_arn         = "arn:aws:iam::<ACCOUNT_ID>:role/aws-reserved/sso.amazonaws.com/eu-central-1/<ROLE_NAME>"
   cross_account_role_name = "eks-cross-account-access"
