@@ -140,6 +140,8 @@ variables:
       - semver
 
 skip_files:
+  - path: "./live/**/acm-cert/*"
+    if: '{{ eq .InfrastructurePreset "eks-auto" }}'
   - path: "./live/**/cross-account/*"
     if: '{{ eq .InfrastructurePreset "eks-auto" }}'
   - path: "./live/**/ebs-csi/*"
