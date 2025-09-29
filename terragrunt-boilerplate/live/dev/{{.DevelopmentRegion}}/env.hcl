@@ -125,6 +125,9 @@ locals {
     }
   }
   {{ end }}
+  {{ if eq .InfrastructurePreset "micro" }}
+  # hello micro
+  {{ end }}
   tags = {
     Name            = "${local.env}-${local.project}"
     Environment     = "${local.env}"
