@@ -140,7 +140,7 @@ locals {
   kms_description  = "KMS for ${local.env}-${local.project} EFS"
   kms_key_usage    = "ENCRYPT_DECRYPT"
   kms_key_administrators = "${local.iam_role}"
-  kms_aliases = ["${local.env}-${local.project}-efs-key"]
+  kms_aliases = ["${local.env}-efs-key"]
   kms_key_statements = [
     {
       sid = "AllowEFSServiceUsage"
@@ -179,9 +179,12 @@ locals {
     region = "${local.region}"
   }
 
-  # EFS-CSI
-  efs_csi_addon_name    = "aws-efs-csi-driver"
-  efs_csi_addon_version = "v2.1.11-eksbuild.1"
+  blueprints_enable_aws_load_balancer_controller = true
+  blueprints_enable_enable_external_dns          = true
+  blueprints_enable_external_dns                 = true
+  blueprints_enable_aws_efs_csi_driver           = true
+  blueprints_enable_cluster_autoscaler           = true
+
   {{ end }}
   tags = {
     Name            = "${local.env}-${local.project}"
