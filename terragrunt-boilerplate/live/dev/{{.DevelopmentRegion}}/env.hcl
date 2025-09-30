@@ -137,10 +137,10 @@ locals {
   acm_wait_for_validation = true
 
   # KMS-EFS
-  kms_description  = "KMS for EFS key usage"
+  kms_description  = "KMS for ${local.env}-${local.project} EFS"
   kms_key_usage    = "ENCRYPT_DECRYPT"
   kms_key_administrators = "${local.iam_role}"
-  kms_aliases = ["efs-key"]
+  kms_aliases = ["${local.env}-${local.project}-efs-key"]
   kms_key_statements = [
     {
       sid = "AllowEFSServiceUsage"
@@ -162,8 +162,8 @@ locals {
   ]
 
   # EFS
-  efs_name           = "example"
-  efs_creation_token = "example-token"
+  efs_name           = "${local.env}-${local.project}-efs"
+  efs_creation_token = "${local.env}-${local.project}-efs-token"
   efs_encrypted      = true
 
   efs_lifecycle_policy = {

@@ -34,13 +34,13 @@ inputs = {
   name           = include.env.locals.efs_description
   creation_token = include.env.locals.efs_creation_token
   encrypted      = include.env.locals.efs_encrypted
-  kms_key_arn    = include.env.locals.efs_kms_key_arn
 
   lifecycle_policy = include.env.locals.efs_lifecycle_policy
 
   attach_policy                      = include.env.locals.efs_attach_policy
   bypass_policy_lockout_safety_check = include.env.locals.efs_bypass_policy_lockout_safety_check
 
+  kms_key_arn    = dependency.kms.kms_key_arn
   mount_targets = {
     for idx, az in dependency.vpc.outputs.azs :
     az => {
