@@ -178,6 +178,10 @@ locals {
   efs_replication_configuration_destination = {
     region = "${local.region}"
   }
+
+  # EFS-CSI
+  efs_csi_addon_name    = "aws-efs-csi-driver"
+  efs_csi_addon_version = "v2.1.11-eksbuild.1"
   {{ end }}
   tags = {
     Name            = "${local.env}-${local.project}"
