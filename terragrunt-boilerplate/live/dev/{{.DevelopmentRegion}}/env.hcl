@@ -129,15 +129,55 @@ locals {
   # ACM
   acm_domain_name  = "my-domain.com"
   acm_zone_id      = "Z2ES7B9AZ6SHAE"
-
   acm_validation_method = "DNS"
-
   acm_subject_alternative_names = [
     "*.my-domain.com",
     "app.sub.my-domain.com",
   ]
-
   acm_wait_for_validation = true
+
+  # KMS-EFS
+  kms_description  = "KMS for EFS key usage"
+  kms_key_usage    = "ENCRYPT_DECRYPT"
+  kms_key_administrators = "${local.iam_role}"
+  kms_aliases = ["efs-key"]
+  kms_key_statements = [
+    {
+      sid = "AllowEFSServiceUsage"
+      actions = [
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:DescribeKey"
+      ]
+      resources = ["*"]
+      principals = [
+        {
+          type        = "Service"
+          identifiers = ["elasticfilesystem.amazonaws.com"]
+        }
+      ]
+    }
+  ]
+
+  # EFS
+  efs_name           = "example"
+  efs_creation_token = "example-token"
+  efs_encrypted      = true
+
+  efs_lifecycle_policy = {
+    transition_to_ia = "AFTER_30_DAYS"
+  }
+
+  efs_attach_policy                      = true
+  efs_bypass_policy_lockout_safety_check = false
+  efs_enable_backup_policy = true
+
+  efs_create_replication_configuration = true
+  efs_replication_configuration_destination = {
+    region = "${local.region}"
+  }
   {{ end }}
   tags = {
     Name            = "${local.env}-${local.project}"
