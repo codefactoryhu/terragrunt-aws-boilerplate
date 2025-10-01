@@ -1,20 +1,26 @@
 variables:
-  - name: InfrastructurePreset
+  - name: EksPreset
     description: |
-      Choose your AWS infrastructure setup:
-    order: 15
+      Choose your EKS setup:
+    order: 1
     type: enum
     options:
       - eks-auto
       - eks-managed
-      - micro
     default: eks-auto
     validate:
       - required
 
+  - name: MicroPreset
+    description: |
+      Would you like to apply Micro setup?
+    order: 2
+    type: boolean
+    default: true
+
   - name: ProjectName
     description: "(lowercase, alphanumeric with hyphens)"
-    order: 1
+    order: 3
     type: string
     default: "my-project"
     validations:
@@ -23,7 +29,7 @@ variables:
 
   - name: ProjectVersion
     description: "(semantic versioning format: x.y.z)"
-    order: 2
+    order: 4
     type: string
     default: "1.0.0"
     validations:
@@ -32,7 +38,7 @@ variables:
 
   - name: OrganizationId
     description: "(format: o-xxxxxxxxxx)"
-    order: 3
+    order: 5
     type: string
     validations:
       - required
@@ -40,7 +46,7 @@ variables:
 
   - name: OrganizationRootId
     description: "(format: r-xxxx)"
-    order: 4
+    order: 6
     type: string
     validations:
       - required
@@ -48,7 +54,7 @@ variables:
 
   - name: DevelopmentAccountId
     description: "(exactly 12 digits)"
-    order: 5
+    order: 7
     type: string
     validations:
       - required
@@ -57,14 +63,14 @@ variables:
 
   - name: EmailDomain
     description: "(valid domain format)"
-    order: 9
+    order: 8
     type: string
     validations:
       - required
       - email
 
   - name: DevelopmentRegion
-    order: 10
+    order: 9
     type: enum
     default: "eu-west-1"
     options:
@@ -94,7 +100,7 @@ variables:
       - required
 
   - name: StateRegion
-    order: 14
+    order: 10
     type: enum
     default: "eu-central-1"
     options:
@@ -124,7 +130,7 @@ variables:
       - required
 
   - name: OpentofuVersion
-    order: 16
+    order: 11
     type: string
     default: "1.10.2"
     validate:
@@ -132,7 +138,7 @@ variables:
       - semver
 
   - name: TerragruntVersion
-    order: 17
+    order: 12
     type: string
     default: "0.82.3"
     validate:
@@ -140,22 +146,12 @@ variables:
       - semver
 
 skip_files:
-  - path: "./live/**/efs/*"
-    if: '{{ eq .InfrastructurePreset "eks-auto" }}'
-  - path: "./live/**/kms/*"
-    if: '{{ eq .InfrastructurePreset "eks-auto" }}'
-  - path: "./live/**/acm-cert/*"
-    if: '{{ eq .InfrastructurePreset "eks-auto" }}'
   - path: "./live/**/cross-account/*"
-    if: '{{ eq .InfrastructurePreset "eks-auto" }}'
+    if: '{{ eq .EksPreset "eks-auto" }}'
   - path: "./live/**/ebs-csi/*"
-    if: '{{ eq .InfrastructurePreset "eks-auto" }}'
-  - path: "./live/**/irsa/*"
-    if: '{{ eq .InfrastructurePreset "eks-auto" }}'
-  - path: "./live/**/lbc/*"
-    if: '{{ eq .InfrastructurePreset "eks-auto" }}'
-  - path: "./modules/**/*"
-    if: '{{ eq .InfrastructurePreset "eks-auto" }}'
+    if: '{{ eq .EksPreset "eks-auto" }}'
+  - path: "./live/**/ebs-irsa/*"
+    if: '{{ eq .EksPreset "eks-auto" }}'
 
 hooks:
   before:

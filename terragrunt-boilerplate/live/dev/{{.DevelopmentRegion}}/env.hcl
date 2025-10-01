@@ -12,7 +12,7 @@ locals {
 
   # Skip modules
   skip_module = {
-  {{ if or (eq .InfrastructurePreset "eks-managed") (eq .InfrastructurePreset "micro") }}
+  {{ if or (eq .EksPreset "eks-managed") (eq .MicroPreset true) }}
     cross-account         = true
     ebs-csi               = false
     irsa                  = false
@@ -37,7 +37,7 @@ locals {
   vpc_create_flow_log_cloudwatch_log_group = false
 
   vpc_cluster_name = "${local.env}-${local.project}-eks"
-  {{ if or (eq .InfrastructurePreset "eks-managed") (eq .InfrastructurePreset "micro") }}
+  {{ if or (eq .EksPreset "eks-managed") (eq .MicroPreset true) }}
   #CROSS_ACCOUNT_ROLE
   cross_account_role_trusted_account_arn         = "arn:aws:iam::<ACCOUNT_ID>:role/aws-reserved/sso.amazonaws.com/eu-central-1/<ROLE_NAME>"
   cross_account_role_name = "eks-cross-account-access"
@@ -92,11 +92,8 @@ locals {
   # EBS CSI Addon
   ebs_csi_addon_name    = "aws-ebs-csi-driver"
   ebs_csi_addon_version = "v1.48.0-eksbuild.1"
-
-  # Load Balancer Controller
-  lbc_enable_aws_load_balancer_controller = true
   {{ end }}
-  {{ if eq .InfrastructurePreset "eks-auto" }}
+  {{ if eq .EksPreset "eks-auto" }}
   #EKS
   eks_name               = "${local.env}-${local.project}-eks"
   eks_kubernetes_version = "1.33"
@@ -125,7 +122,16 @@ locals {
     }
   }
   {{ end }}
-  {{ if eq .InfrastructurePreset "micro" }}
+  {{ if and (eq .EksPreset "eks-managed") (eq .MicroPreset false) }}
+  blueprints_enable_aws_load_balancer_controller = true
+  {{ end }}
+  {{ if eq .MicroPreset true }}
+  # BLUEPRINTS
+  blueprints_enable_enable_external_dns          = true
+  blueprints_enable_external_dns                 = true
+  blueprints_enable_aws_efs_csi_driver           = true
+  blueprints_enable_cluster_autoscaler           = true
+
   # ACM
   acm_domain_name  = "my-domain.com"
   acm_zone_id      = "Z2ES7B9AZ6SHAE"
@@ -178,12 +184,6 @@ locals {
   efs_replication_configuration_destination = {
     region = "${local.region}"
   }
-
-  blueprints_enable_aws_load_balancer_controller = true
-  blueprints_enable_enable_external_dns          = true
-  blueprints_enable_external_dns                 = true
-  blueprints_enable_aws_efs_csi_driver           = true
-  blueprints_enable_cluster_autoscaler           = true
 
   {{ end }}
   tags = {
