@@ -1,0 +1,141 @@
+#!/usr/bin/env bash
+
+#MISE alias="update-terragrunt-role"
+#MISE description="Create and update terragrunt execution roles"
+#USAGE flag "-a --account <account>" help="Update execution role in account" {
+#USAGE }
+
+set -euo pipefail
+source "$(dirname "$0")/helpers"
+cd "$(git rev-parse --show-toplevel)"
+
+
+# Print help and exit
+  [[ "${1:-}" == "--help" ]] && { usage; exit 0; }
+
+ACCOUNT="${usage_account}"
+ROLE_NAME="terragrunt-execution-role"
+POLICY_NAME="terragrunt-execution-policy"
+ROLE_FILE="iam-roles/execution-role-$ACCOUNT.json.tpl"
+
+
+function get_project_values() {
+  local key="$1"
+  local hcl_file="project.hcl"
+
+  grep -E "^[[:space:]]*${key}[[:space:]]*=" "$hcl_file" \
+    | sed -E 's/.*=[[:space:]]*"([^"]+)".*/\1/'
+}
+
+function tag_role() {
+  info "Adding all tags ..."
+  aws iam tag-role \
+    --role-name "$ROLE_NAME" \
+    --tags \
+      "Key=createdBy,Value=mise" \
+      "Key=project,Value=centinel" \
+      "Key=project-version,Value=$1"
+}
+
+function create_role() {
+  info "Creating IAM role: $ROLE_NAME"
+  aws iam create-role \
+    --role-name "$ROLE_NAME" \
+    --assume-role-policy-document "$trust_policy"
+}
+
+function replace_template_variables() {
+  account_id_key="${ACCOUNT//-/_}_account_id"
+  account_id=$(get_project_values $account_id_key)
+
+  sed -e "s|\${account_id}|$account_id|g" -e "s|\${env}|$ACCOUNT|g" "$ROLE_FILE"
+}
+
+function update_trust_policy() {
+  info "Updating trust policy ... "
+  aws iam update-assume-role-policy \
+    --role-name "$ROLE_NAME" \
+    --policy-document "$trust_policy"
+}
+
+function update_inline_policy() {
+  info "Updating inline policy ... "
+  aws iam put-role-policy \
+    --role-name "$ROLE_NAME" \
+    --policy-name "$POLICY_NAME" \
+    --policy-document "$inline_policy"
+}
+
+function detach_all_managed_policies() {
+  info "Detaching all currently attached managed policies ... "
+  existing_managed=$(aws iam list-attached-role-policies --role-name "$ROLE_NAME"| jq -r '.AttachedPolicies[].PolicyArn')
+  for arn in $existing_managed; do
+    aws iam detach-role-policy --role-name "$ROLE_NAME" --policy-arn "$arn"
+  done
+}
+
+function attach_managed_policies() {
+  if [[ -z "${managed_policies:-}" ]]; then
+    info "No managed policies to attach"
+    return
+  fi
+  info "Attaching managed policies ... "
+  for policy_arn in $managed_policies; do
+    aws iam attach-role-policy --role-name "$ROLE_NAME" --policy-arn "arn:aws:iam::aws:policy/$policy_arn"
+  done
+}
+
+function role_exists() {
+  aws iam get-role --role-name "$ROLE_NAME" > /dev/null 2>&1
+}
+
+confirm_aws_profile() {
+  local aws_profile="${AWS_PROFILE:-default}"
+
+  info "🔍 AWS profile in use: ${aws_profile}"
+
+  read -r -p "⚠️  Is this AWS profile OK? (y/N): " confirm
+  case "$confirm" in
+    y|Y|yes|YES)
+      info "✅ Continuing with profile: ${aws_profile}"
+      ;;
+    *)
+      info "❌ Aborted by user."
+      exit 0
+      ;;
+  esac
+}
+
+function main() {
+  info "🔄 Starting role update : $ACCOUNT - $ROLE_NAME \n"
+
+  confirm_aws_profile
+
+  config=$(replace_template_variables)
+  if ! echo "$config" | jq . > /dev/null 2>&1; then
+    error "Invalid JSON in role config!"
+    exit 1
+  fi
+
+  trust_policy=$(echo "$config" | jq '.policies.trust')
+  inline_policy=$(echo "$config" | jq '.policies.inline')
+  managed_policies=$(echo "$config" | jq -r '.policies.managed[]?')
+
+  if role_exists; then
+    info "IAM role '$ROLE_NAME' already exists"
+    update_trust_policy
+  else
+    create_role
+  fi
+
+  update_inline_policy
+  detach_all_managed_policies
+  attach_managed_policies
+
+  project_version=$(get_project_values project_version)
+  tag_role $project_version
+
+  info "\n ✅ Role '$ROLE_NAME' created/updated and tagged successfully"
+}
+
+main "$@"
