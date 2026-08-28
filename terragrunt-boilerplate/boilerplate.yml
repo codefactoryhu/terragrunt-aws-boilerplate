@@ -132,7 +132,7 @@ variables:
   - name: OpentofuVersion
     order: 11
     type: string
-    default: "1.10.2"
+    default: "1.12.6"
     validate:
       - required
       - semver
@@ -140,7 +140,7 @@ variables:
   - name: TerragruntVersion
     order: 12
     type: string
-    default: "1.0.0"
+    default: "1.1.4"
     validate:
       - required
       - semver
