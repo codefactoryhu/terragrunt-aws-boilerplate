@@ -15,7 +15,7 @@ variables:
     description: |
       Would you like to apply Micro setup?
     order: 2
-    type: boolean
+    type: bool
     default: true
 
   - name: ProjectName
@@ -140,7 +140,7 @@ variables:
   - name: TerragruntVersion
     order: 12
     type: string
-    default: "0.82.3"
+    default: "1.0.0"
     validate:
       - required
       - semver
