@@ -22,7 +22,7 @@ variables:
     description: "(lowercase, alphanumeric with hyphens)"
     order: 3
     type: string
-    default: "my-project"
+    default: "codefactory-default"
     validations:
       - required
       - length-3-20
