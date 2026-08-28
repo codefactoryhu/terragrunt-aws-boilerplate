@@ -11,16 +11,9 @@ variables:
     validate:
       - required
 
-  - name: MicroPreset
-    description: |
-      Would you like to apply Micro setup?
-    order: 2
-    type: bool
-    default: true
-
   - name: ProjectName
     description: "(lowercase, alphanumeric with hyphens)"
-    order: 3
+    order: 2
     type: string
     default: "codefactory-default"
     validations:
@@ -29,7 +22,7 @@ variables:
 
   - name: ProjectVersion
     description: "(semantic versioning format: x.y.z)"
-    order: 4
+    order: 3
     type: string
     default: "1.0.0"
     validations:
@@ -38,7 +31,7 @@ variables:
 
   - name: OrganizationId
     description: "(format: o-xxxxxxxxxx)"
-    order: 5
+    order: 4
     type: string
     default: "o-xxxxxxxxxx"
     validations:
@@ -47,7 +40,7 @@ variables:
 
   - name: OrganizationRootId
     description: "(format: r-xxxx)"
-    order: 6
+    order: 5
     type: string
     default: "r-xxxx"
     validations:
@@ -56,7 +49,7 @@ variables:
 
   - name: DevelopmentAccountId
     description: "(exactly 12 digits)"
-    order: 7
+    order: 6
     type: string
     default: "000000000000"
     validations:
@@ -66,7 +59,7 @@ variables:
 
   - name: EmailDomain
     description: "(valid domain format)"
-    order: 8
+    order: 7
     type: string
     default: "boilerplate@codefactory.hu"
     validations:
@@ -74,7 +67,7 @@ variables:
       - email
 
   - name: DevelopmentRegion
-    order: 9
+    order: 8
     type: enum
     default: "eu-central-1"
     options:
@@ -104,7 +97,7 @@ variables:
       - required
 
   - name: StateRegion
-    order: 10
+    order: 9
     type: enum
     default: "eu-central-1"
     options:
@@ -134,7 +127,7 @@ variables:
       - required
 
   - name: OpentofuVersion
-    order: 11
+    order: 10
     type: string
     default: "1.12.6"
     validate:
@@ -142,7 +135,7 @@ variables:
       - semver
 
   - name: TerragruntVersion
-    order: 12
+    order: 11
     type: string
     default: "1.1.4"
     validate:
