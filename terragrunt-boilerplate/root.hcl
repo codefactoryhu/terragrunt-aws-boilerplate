@@ -5,6 +5,7 @@ locals {
 
   project    = local.project_vars.locals.project
   account_id = local.account_vars.locals.account_id
+  account    = local.account_vars.locals.account
   env        = local.account_vars.locals.account
   region     = local.env_vars.locals.region
 
@@ -34,7 +35,7 @@ generate "provider" {
 provider "aws" {
   region  = "${local.region}"
   assume_role {
-      role_arn     = "arn:aws:iam::${local.account_id}:role/terragrunt-execution-role-${local.project}"
+      role_arn     = "arn:aws:iam::${local.account_id}:role/terragrunt-execution-role-${local.account}"
     }
 }
 EOF

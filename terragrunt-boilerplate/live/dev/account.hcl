@@ -1,4 +1,4 @@
 locals {
-  account    = "development"
+  account    = "{{.DevelopmentAccountName}}"
   account_id = "{{.DevelopmentAccountId}}"
 }

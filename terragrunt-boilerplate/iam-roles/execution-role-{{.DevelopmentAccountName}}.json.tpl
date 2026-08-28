@@ -30,33 +30,6 @@
           "Resource": [
             "*"
           ]
-        },
-        {
-          "Sid": "allowBudgets",
-          "Effect": "Allow",
-          "Action": [
-            "budgets:*"
-          ],
-          "Resource": [
-            "*"
-          ]
-        },
-        {
-          "Sid": "allowServices",
-          "Effect": "Allow",
-          "Action": [
-            "logs:*",
-            "lambda:*",
-            "glue:*",
-            "athena:*",
-            "states:*",
-            "apigateway:*",
-            "secretsmanager:*",
-            "cloudfront:*"
-          ],
-          "Resource": [
-            "*"
-          ]
         }
       ]
     },

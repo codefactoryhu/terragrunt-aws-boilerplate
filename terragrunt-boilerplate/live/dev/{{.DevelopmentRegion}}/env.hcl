@@ -3,12 +3,13 @@ locals {
   region      = "{{.DevelopmentRegion}}"
   project     = "{{.ProjectName}}"
   account_id  = "{{.DevelopmentAccountId}}"
+  account     = "{{.DevelopmentAccountName}}"
 
   organization_id           = "{{.OrganizationId}}"
   organization_root_id      = "{{.OrganizationRootId}}"
 
   project_version = "{{.ProjectVersion}}"
-  iam_role        = "arn:aws:iam::${local.account_id}:role/terragrunt-execution-role-${local.project}"
+  iam_role        = "arn:aws:iam::${local.account_id}:role/terragrunt-execution-role-${local.account}"
 
   # Skip modules
   skip_module = {

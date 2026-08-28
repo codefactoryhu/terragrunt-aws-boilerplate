@@ -57,9 +57,18 @@ variables:
       - length-12-12
       - digit
 
+  - name: DevelopmentAccountName
+    description: "(lowercase, alphanumeric with hyphens)"
+    order: 7
+    type: string
+    default: "development"
+    validations:
+      - required
+      - length-3-20
+
   - name: EmailDomain
     description: "(valid domain format)"
-    order: 7
+    order: 8
     type: string
     default: "boilerplate@codefactory.hu"
     validations:
@@ -67,36 +76,6 @@ variables:
       - email
 
   - name: DevelopmentRegion
-    order: 8
-    type: enum
-    default: "eu-central-1"
-    options:
-      - "us-east-1"
-      - "us-east-2"
-      - "us-west-1"
-      - "us-west-2"
-      - "eu-west-1"
-      - "eu-west-2"
-      - "eu-west-3"
-      - "eu-central-1"
-      - "eu-central-2"
-      - "eu-north-1"
-      - "eu-south-1"
-      - "eu-south-2"
-      - "ap-northeast-1"
-      - "ap-northeast-2"
-      - "ap-northeast-3"
-      - "ap-southeast-1"
-      - "ap-southeast-2"
-      - "ap-southeast-3"
-      - "ap-south-1"
-      - "ap-south-2"
-      - "ca-central-1"
-      - "sa-east-1"
-    validate:
-      - required
-
-  - name: StateRegion
     order: 9
     type: enum
     default: "eu-central-1"
@@ -126,8 +105,38 @@ variables:
     validate:
       - required
 
-  - name: OpentofuVersion
+  - name: StateRegion
     order: 10
+    type: enum
+    default: "eu-central-1"
+    options:
+      - "us-east-1"
+      - "us-east-2"
+      - "us-west-1"
+      - "us-west-2"
+      - "eu-west-1"
+      - "eu-west-2"
+      - "eu-west-3"
+      - "eu-central-1"
+      - "eu-central-2"
+      - "eu-north-1"
+      - "eu-south-1"
+      - "eu-south-2"
+      - "ap-northeast-1"
+      - "ap-northeast-2"
+      - "ap-northeast-3"
+      - "ap-southeast-1"
+      - "ap-southeast-2"
+      - "ap-southeast-3"
+      - "ap-south-1"
+      - "ap-south-2"
+      - "ca-central-1"
+      - "sa-east-1"
+    validate:
+      - required
+
+  - name: OpentofuVersion
+    order: 11
     type: string
     default: "1.12.6"
     validate:
@@ -135,7 +144,7 @@ variables:
       - semver
 
   - name: TerragruntVersion
-    order: 11
+    order: 12
     type: string
     default: "1.1.4"
     validate:
