@@ -13,16 +13,13 @@ include "env" {
 }
 
 inputs = {
-  domain_name  = include.env.locals.acm_domain_name
-  zone_id      = include.env.locals.acm_zone_id
+  domain_name = include.env.locals.acm_domain_name
+  zone_id     = include.env.locals.acm_zone_id
 
-  validation_method = include.env.locals.acm_validation_method
-
+  validation_method         = include.env.locals.acm_validation_method
   subject_alternative_names = include.env.locals.acm_subject_alternative_names
-
-  wait_for_validation = include.env.locals.acm_wait_for_validation
-
-  tags = include.env.locals.tags
+  wait_for_validation       = include.env.locals.acm_wait_for_validation
+  tags                      = include.env.locals.tags
 }
 
 skip = include.env.locals.skip_module.acm
