@@ -11,7 +11,7 @@ cd "$(git rev-parse --show-toplevel)"
   [[ "${1:-}" == "--help" ]] && { usage; exit 0; }
 
 ACCOUNT=platform
-ROLE_NAME="terragrunt-execution-role-$ACCOUNT"
+ROLE_NAME="terragrunt-execution-role"
 POLICY_NAME="terragrunt-execution-policy-$ACCOUNT"
 ROLE_FILE="iam-roles/execution-role-$ACCOUNT.json.tpl"
 
