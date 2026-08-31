@@ -1,18 +1,20 @@
 locals {
-  env_vars     = read_terragrunt_config(find_in_parent_folders("env.hcl"))
-  account_vars = read_terragrunt_config(find_in_parent_folders("account.hcl"))
   project_vars = read_terragrunt_config(find_in_parent_folders("project.hcl"))
+  account_vars = read_terragrunt_config(find_in_parent_folders("account.hcl"))
 
-  project                   = local.project_vars.locals.project
-  project_version           = local.project_vars.locals.project_version
-  execution_role            = local.project_vars.locals.execution_role
-  eks_sso_access_role_name  = local.project_vars.locals.eks_sso_access_role_name
+  project             = local.project_vars.locals.project
+  project_version     = local.project_vars.locals.project_version
+  default_region      = local.project_vars.locals.default_region
+  notification_emails = local.project_vars.locals.notification_emails
+
+  execution_role           = local.project_vars.locals.execution_role
+  eks_sso_access_role_name = local.project_vars.locals.eks_sso_access_role_name
 
   account_id = local.account_vars.locals.account_id
   account    = local.account_vars.locals.account
   env        = local.account_vars.locals.account
 
-  region = local.env_vars.locals.region
+  region = "{{ .DevelopmentRegion }}"
 
   # Skip modules
   skip_module = {
