@@ -7,8 +7,10 @@ locals {
   default_region      = local.project_vars.locals.default_region
   notification_emails = local.project_vars.locals.notification_emails
 
+  # caller_identity          = jsondecode(run_cmd("aws", "sts", "get-caller-identity", "--output", "json"))
+  # eks_sso_access_role_name = split("/", local.caller_identity.Arn)[1]
+  eks_sso_access_role_name = run_cmd("mise", "run", "get-sso-role")
   execution_role           = local.project_vars.locals.execution_role
-  eks_sso_access_role_name = local.project_vars.locals.eks_sso_access_role_name
 
   account_id = local.account_vars.locals.account_id
   account    = local.account_vars.locals.account
