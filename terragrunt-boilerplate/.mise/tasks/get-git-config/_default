@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+set -o pipefail
+
+remote_origin_url=$(git config --get remote.origin.url) || {
+  echo "to-be-replaced"
+  exit 0
+}
+
+case "${1:-}" in
+  --url)
+    echo "$remote_origin_url"
+    ;;
+
+  --owner-and-repo)
+    repository="${remote_origin_url#https://github.com/}"
+    repository="${repository%.git}"
+    echo "$repository"
+    ;;
+
+  *)
+    echo "Usage: $0 --url | --owner-and-repo" >&2
+    exit 1
+    ;;
+esac
