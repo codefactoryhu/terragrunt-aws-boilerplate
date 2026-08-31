@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+role_name=$(
+  set -o pipefail
+  aws sts get-caller-identity --output json \
+    | jq -r '.Arn' \
+    | cut -d'/' -f2
+) || role_name="to-be-replaced"
+
+echo "$role_name"
