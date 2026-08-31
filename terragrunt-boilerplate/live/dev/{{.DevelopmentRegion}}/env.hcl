@@ -115,7 +115,7 @@ locals {
 
   eks_access_entries = {
     test = {
-      principal_arn = "arn:aws:iam::${local.account_id}:role/aws-reserved/sso.amazonaws.com/${local.region}/<ROLE_NAME>"
+      principal_arn = "arn:aws:iam::${local.account_id}:role/aws-reserved/sso.amazonaws.com/${local.region}/${local.eks_sso_access_role_name}"
 
       policy_associations = {
         admin = {
