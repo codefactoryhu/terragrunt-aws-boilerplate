@@ -10,7 +10,7 @@ cd "$(git rev-parse --show-toplevel)"
 # Print help and exit
   [[ "${1:-}" == "--help" ]] && { usage; exit 0; }
 
-ACCOUNT={{.DevelopmentAccountName}}
+ACCOUNT=platform
 ROLE_NAME="terragrunt-execution-role-$ACCOUNT"
 POLICY_NAME="terragrunt-execution-policy-$ACCOUNT"
 ROLE_FILE="iam-roles/execution-role-$ACCOUNT.json.tpl"
@@ -19,6 +19,14 @@ ROLE_FILE="iam-roles/execution-role-$ACCOUNT.json.tpl"
 function get_project_values() {
   local key="$1"
   local hcl_file="project.hcl"
+
+  grep -E "^[[:space:]]*${key}[[:space:]]*=" "$hcl_file" \
+    | sed -E 's/.*=[[:space:]]*"([^"]+)".*/\1/'
+}
+
+function get_account_values() {
+  local key="$1"
+  local hcl_file="live/dev/account.hcl"
 
   grep -E "^[[:space:]]*${key}[[:space:]]*=" "$hcl_file" \
     | sed -E 's/.*=[[:space:]]*"([^"]+)".*/\1/'
@@ -42,8 +50,12 @@ function create_role() {
 }
 
 function replace_template_variables() {
-  account_id_key="${ACCOUNT//-/_}_account_id"
-  account_id=$(get_project_values $account_id_key)
+  account_id=$(get_account_values account_id)
+
+  if [[ -z "$account_id" ]]; then
+    error "Could not resolve 'account_id' from live/dev/account.hcl - refusing to build a policy with a blank account id"
+    exit 1
+  fi
 
   sed -e "s|\${account_id}|$account_id|g" -e "s|\${env}|$ACCOUNT|g" "$ROLE_FILE"
 }
@@ -89,22 +101,22 @@ function role_exists() {
 confirm_aws_profile() {
   local aws_profile="${AWS_PROFILE:-default}"
 
-  info "🔍 AWS profile in use: ${aws_profile}"
+  info "AWS profile in use: ${aws_profile}"
 
-  read -r -p "⚠️  Is this AWS profile OK? (y/N): " confirm
+  read -r -p "$(echo -e "${COLOR_YELLOW}Is this AWS profile OK? (y/N): ${COLOR_RESET}")" confirm
   case "$confirm" in
     y|Y|yes|YES)
-      info "✅ Continuing with profile: ${aws_profile}"
+      success "Continuing with profile: ${aws_profile}"
       ;;
     *)
-      info "❌ Aborted by user."
+      error "Aborted by user."
       exit 0
       ;;
   esac
 }
 
 function main() {
-  info "🔄 Starting role update : $ACCOUNT - $ROLE_NAME \n"
+  info "Starting role update: $ACCOUNT - $ROLE_NAME"
 
   confirm_aws_profile
 
@@ -132,7 +144,7 @@ function main() {
   project_version=$(get_project_values project_version)
   tag_role $project_version
 
-  info "\n ✅ Role '$ROLE_NAME' created/updated and tagged successfully"
+  success "Role '$ROLE_NAME' created/updated and tagged successfully"
 }
 
 main "$@"
