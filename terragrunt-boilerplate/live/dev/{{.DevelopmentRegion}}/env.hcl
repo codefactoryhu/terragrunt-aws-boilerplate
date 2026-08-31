@@ -125,12 +125,13 @@ locals {
   }
   {{ end }}
   {{ if eq .EksPreset "eks-managed" }}
-  blueprints_enable_aws_load_balancer_controller = true
   # BLUEPRINTS
+
+  blueprints_enable_aws_load_balancer_controller = true
+  blueprints_enable_cluster_autoscaler           = true
   blueprints_enable_enable_external_dns          = true
   blueprints_enable_external_dns                 = true
   blueprints_enable_aws_efs_csi_driver           = true
-  blueprints_enable_cluster_autoscaler           = true
 
   # ACM
   acm_domain_name  = "my-domain.com"

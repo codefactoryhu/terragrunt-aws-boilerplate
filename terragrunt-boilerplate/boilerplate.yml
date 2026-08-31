@@ -158,6 +158,14 @@ skip_files:
     if: '{{ eq .EksPreset "eks-auto" }}'
   - path: "./live/**/ebs-irsa/*"
     if: '{{ eq .EksPreset "eks-auto" }}'
+  - path: "./live/**/blueprints/*"
+    if: '{{ eq .EksPreset "eks-auto" }}'
+  - path: "./live/**/efs/*"
+    if: '{{ eq .EksPreset "eks-auto" }}'
+  - path: "./live/**/acm-cert/*"
+    if: '{{ eq .EksPreset "eks-auto" }}'
+  - path: "./live/**/kms/*"
+    if: '{{ eq .EksPreset "eks-auto" }}'
 
 hooks:
   before:
