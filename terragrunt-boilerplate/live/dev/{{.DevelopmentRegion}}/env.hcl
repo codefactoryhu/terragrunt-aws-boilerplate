@@ -17,7 +17,7 @@ locals {
     cross_account         = true
     ebs_csi               = false
     irsa                  = false
-    lbc                   = false
+    blueprints            = false
     kms                   = false
   {{ end }}
     eks                   = false

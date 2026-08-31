@@ -71,6 +71,7 @@ inputs = {
   cluster_version   = dependency.eks.outputs.cluster_version
   oidc_provider_arn = dependency.eks.outputs.oidc_provider_arn
 
+  {{ if eq .EksPreset "eks-managed" }}
   aws_load_balancer_controller = {
     chart_version = "2.13.4"
     set = [
@@ -84,6 +85,21 @@ inputs = {
       }
     ]
   }
+
+  cluster_autoscaler = {
+    chart_version = "1.8.1"
+    set = [
+      {
+        name  = "clusterName"
+        value = dependency.eks.outputs.cluster_name
+      },
+      {
+        name  = "vpcId"
+        value = dependency.vpc.outputs.vpc_id
+      }
+    ]
+  }
+  {{ end }}
 
   external_dns = {
     chart_version = "9.0.3"
@@ -113,24 +129,10 @@ inputs = {
     ]
   }
 
-  cluster_autoscaler = {
-    chart_version = "1.8.1"
-    set = [
-      {
-        name  = "clusterName"
-        value = dependency.eks.outputs.cluster_name
-      },
-      {
-        name  = "vpcId"
-        value = dependency.vpc.outputs.vpc_id
-      }
-    ]
-  }
-
   tags = include.env.locals.tags
 }
 
 exclude {
-  if      = include.env.locals.skip_module.lbc
+  if      = include.env.locals.skip_module.blueprints
   actions = ["all"]
 }
