@@ -3,11 +3,14 @@ locals {
   account_vars = read_terragrunt_config(find_in_parent_folders("account.hcl"))
   project_vars = read_terragrunt_config(find_in_parent_folders("project.hcl"))
 
-  project    = local.project_vars.locals.project
+  project        = local.project_vars.locals.project
+  execution_role = local.project_vars.locals.execution_role
+
   account_id = local.account_vars.locals.account_id
   account    = local.account_vars.locals.account
   env        = local.account_vars.locals.account
-  region     = local.env_vars.locals.region
+
+  region = local.env_vars.locals.region
 
   s3_state_region = "{{.StateRegion}}"
 }
@@ -35,7 +38,7 @@ generate "provider" {
 provider "aws" {
   region  = "${local.region}"
   assume_role {
-      role_arn     = "arn:aws:iam::${local.account_id}:role/terragrunt-execution-role-${local.account}"
+      role_arn     = "${local.execution_role}"
     }
 }
 EOF

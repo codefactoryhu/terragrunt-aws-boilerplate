@@ -1,15 +1,18 @@
 locals {
-  env         = "dev"
-  region      = "{{.DevelopmentRegion}}"
-  project     = "{{.ProjectName}}"
-  account_id  = "{{.DevelopmentAccountId}}"
-  account     = "{{.DevelopmentAccountName}}"
+  env_vars     = read_terragrunt_config(find_in_parent_folders("env.hcl"))
+  account_vars = read_terragrunt_config(find_in_parent_folders("account.hcl"))
+  project_vars = read_terragrunt_config(find_in_parent_folders("project.hcl"))
 
-  organization_id           = "{{.OrganizationId}}"
-  organization_root_id      = "{{.OrganizationRootId}}"
+  project                   = local.project_vars.locals.project
+  project_version           = local.project_vars.locals.project_version
+  execution_role            = local.project_vars.locals.execution_role
+  eks_sso_access_role_name  = local.project_vars.locals.eks_sso_access_role_name
 
-  project_version = "{{.ProjectVersion}}"
-  iam_role        = "arn:aws:iam::${local.account_id}:role/terragrunt-execution-role-${local.account}"
+  account_id = local.account_vars.locals.account_id
+  account    = local.account_vars.locals.account
+  env        = local.account_vars.locals.account
+
+  region = local.env_vars.locals.region
 
   # Skip modules
   skip_module = {
@@ -54,7 +57,7 @@ locals {
 
   eks_access_entries = {
     test = {
-      principal_arn = "arn:aws:iam::${local.account_id}:role/aws-reserved/sso.amazonaws.com/${local.region}/<ROLE_NAME>"
+      principal_arn = "arn:aws:iam::${local.account_id}:role/aws-reserved/sso.amazonaws.com/${local.region}/${local.eks_sso_access_role_name}"
 
       policy_associations = {
         admin = {
@@ -146,7 +149,7 @@ locals {
   # KMS-EFS
   kms_description  = "KMS for ${local.env}-${local.project} EFS"
   kms_key_usage    = "ENCRYPT_DECRYPT"
-  kms_key_administrators = "${local.iam_role}"
+  kms_key_administrators = "${local.execution_role}"
   kms_aliases = ["${local.env}-efs-key"]
   kms_key_statements = [
     {
