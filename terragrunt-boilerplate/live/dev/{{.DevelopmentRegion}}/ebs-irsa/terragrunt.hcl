@@ -14,15 +14,15 @@ include "env" {
 
 dependency "eks" {
   config_path = "${get_original_terragrunt_dir()}/../eks"
-mock_outputs = {
+  mock_outputs = {
     cluster_oidc_issuer_url = "https://oidc.eks.us-east-1.amazonaws.com/id/0000000000000000"
     oidc_provider_arn       = "arn:aws:iam::123456789012:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/0000000000000000"
   }
 }
 
 inputs = {
-  role_name                      = include.env.locals.ebs_irsa_role_name
-  attach_ebs_csi_policy          = include.env.locals.ebs_irsa_attach_ebs_csi_policy
+  role_name             = include.env.locals.ebs_irsa_role_name
+  attach_ebs_csi_policy = include.env.locals.ebs_irsa_attach_ebs_csi_policy
 
   oidc_providers = {
     main = {
@@ -34,4 +34,7 @@ inputs = {
   tags = include.env.locals.tags
 }
 
-skip = include.env.locals.skip_module.irsa
+exclude {
+  if      = include.env.locals.skip_module.irsa
+  actions = ["all"]
+}

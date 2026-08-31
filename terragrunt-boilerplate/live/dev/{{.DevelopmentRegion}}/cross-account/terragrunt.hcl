@@ -13,10 +13,15 @@ include "env" {
 }
 
 inputs = {
-  trusted_account_arn = include.env.locals.cross_account_role_trusted_account_arn
+  trusted_account_arn         = include.env.locals.cross_account_role_trusted_account_arn
   eks_cross_account_role_name = include.env.locals.cross_account_role_name
 
   tags = include.env.locals.tags
 }
 
 skip = include.env.locals.skip_module.cross-account
+
+exclude {
+  if      = include.env.locals.skip_module.cross_account
+  actions = ["all"]
+}

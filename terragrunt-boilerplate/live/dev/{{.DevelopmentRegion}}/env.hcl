@@ -1,22 +1,29 @@
 locals {
-  env         = "dev"
-  region      = "{{.DevelopmentRegion}}"
-  project     = "{{.ProjectName}}"
-  account_id  = "{{.DevelopmentAccountId}}"
+  project_vars = read_terragrunt_config(find_in_parent_folders("project.hcl"))
+  account_vars = read_terragrunt_config(find_in_parent_folders("account.hcl"))
 
-  organization_id           = "{{.OrganizationId}}"
-  organization_root_id      = "{{.OrganizationRootId}}"
+  project             = local.project_vars.locals.project
+  project_version     = local.project_vars.locals.project_version
+  default_region      = local.project_vars.locals.default_region
+  notification_emails = local.project_vars.locals.notification_emails
 
-  project_version = "{{.ProjectVersion}}"
-  iam_role        = "arn:aws:iam::${local.account_id}:role/terragrunt-execution-role"
+  eks_sso_access_role_name = run_cmd("mise", "run", "get-sso-role")
+  execution_role           = local.project_vars.locals.execution_role
+
+  account_id = local.account_vars.locals.account_id
+  account    = local.account_vars.locals.account
+  env        = local.account_vars.locals.account
+
+  region = local.default_region
 
   # Skip modules
   skip_module = {
-  {{ if eq .InfrastructurePreset "eks-managed" }}
-    cross-account         = true
-    ebs-csi               = false
+  {{ if eq .EksPreset "eks-managed" }}
+    cross_account         = true
+    ebs_csi               = false
     irsa                  = false
-    lbc                   = false
+    blueprints            = false
+    kms                   = false
   {{ end }}
     eks                   = false
     vpc                   = false
@@ -37,7 +44,7 @@ locals {
   vpc_create_flow_log_cloudwatch_log_group = false
 
   vpc_cluster_name = "${local.env}-${local.project}-eks"
-  {{ if eq .InfrastructurePreset "eks-managed" }}
+  {{ if  eq .EksPreset "eks-managed" }}
   #CROSS_ACCOUNT_ROLE
   cross_account_role_trusted_account_arn         = "arn:aws:iam::<ACCOUNT_ID>:role/aws-reserved/sso.amazonaws.com/eu-central-1/<ROLE_NAME>"
   cross_account_role_name = "eks-cross-account-access"
@@ -52,7 +59,7 @@ locals {
 
   eks_access_entries = {
     test = {
-      principal_arn = "arn:aws:iam::${local.account_id}:role/aws-reserved/sso.amazonaws.com/${local.region}/<ROLE_NAME>"
+      principal_arn = "arn:aws:iam::${local.account_id}:role/aws-reserved/sso.amazonaws.com/${local.region}/${local.eks_sso_access_role_name}"
 
       policy_associations = {
         admin = {
@@ -92,11 +99,8 @@ locals {
   # EBS CSI Addon
   ebs_csi_addon_name    = "aws-ebs-csi-driver"
   ebs_csi_addon_version = "v1.48.0-eksbuild.1"
-
-  # Load Balancer Controller
-  lbc_enable_aws_load_balancer_controller = true
   {{ end }}
-  {{ if eq .InfrastructurePreset "eks-auto" }}
+  {{ if eq .EksPreset "eks-auto" }}
   #EKS
   eks_name               = "${local.env}-${local.project}-eks"
   eks_kubernetes_version = "1.33"
@@ -111,7 +115,7 @@ locals {
 
   eks_access_entries = {
     test = {
-      principal_arn = "arn:aws:iam::${local.account_id}:role/aws-reserved/sso.amazonaws.com/${local.region}/<ROLE_NAME>"
+      principal_arn = "arn:aws:iam::${local.account_id}:role/aws-reserved/sso.amazonaws.com/${local.region}/${local.eks_sso_access_role_name}"
 
       policy_associations = {
         admin = {
@@ -125,9 +129,73 @@ locals {
     }
   }
   {{ end }}
+  {{ if eq .EksPreset "eks-managed" }}
+  # BLUEPRINTS
+
+  blueprints_enable_aws_load_balancer_controller = true
+  blueprints_enable_cluster_autoscaler           = true
+  blueprints_enable_enable_external_dns          = true
+  blueprints_enable_external_dns                 = true
+  blueprints_enable_aws_efs_csi_driver           = true
+
+  # ACM
+  acm_domain_name  = "my-domain.com"
+  acm_zone_id      = "Z2ES7B9AZ6SHAE"
+  acm_validation_method = "DNS"
+  acm_subject_alternative_names = [
+    "*.my-domain.com",
+    "app.sub.my-domain.com",
+  ]
+  acm_wait_for_validation = true
+
+  # KMS-EFS
+  kms_description  = "KMS for ${local.env}-${local.project} EFS"
+  kms_key_usage    = "ENCRYPT_DECRYPT"
+  kms_key_administrators = "${local.execution_role}"
+  kms_aliases = ["${local.env}-efs-key"]
+  kms_key_statements = [
+    {
+      sid = "AllowEFSServiceUsage"
+      actions = [
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:DescribeKey"
+      ]
+      resources = ["*"]
+      principals = [
+        {
+          type        = "Service"
+          identifiers = ["elasticfilesystem.amazonaws.com"]
+        }
+      ]
+    }
+  ]
+
+  # EFS
+  efs_name           = "${local.env}-${local.project}-efs"
+  efs_creation_token = "${local.env}-${local.project}-efs-token"
+  efs_encrypted      = true
+
+  efs_lifecycle_policy = {
+    transition_to_ia = "AFTER_30_DAYS"
+  }
+
+  efs_attach_policy                      = true
+  efs_bypass_policy_lockout_safety_check = false
+  efs_enable_backup_policy = true
+
+  efs_create_replication_configuration = true
+  efs_replication_configuration_destination = {
+    region = "${local.region}"
+  }
+
+  {{ end }}
   tags = {
     Name            = "${local.env}-${local.project}"
     Environment     = "${local.env}"
+    Project         = "${local.project}"
     Project-version = "${local.project_version}"
   }
 }

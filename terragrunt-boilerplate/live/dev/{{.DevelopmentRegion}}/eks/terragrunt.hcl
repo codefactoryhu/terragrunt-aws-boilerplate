@@ -21,7 +21,7 @@ dependency "vpc" {
   }
 }
 
-{{ if eq .InfrastructurePreset "eks-managed" }}
+{{ if eq .EksPreset "eks-managed" }}
 inputs = {
   name               = include.env.locals.eks_name
   kubernetes_version = include.env.locals.eks_kubernetes_version
@@ -61,7 +61,7 @@ inputs = {
   tags = include.env.locals.tags
 }
 {{ end }}
-{{ if eq .InfrastructurePreset "eks-auto" }}
+{{ if eq .EksPreset "eks-auto" }}
 
 inputs = {
   name               = include.env.locals.eks_name
@@ -80,4 +80,7 @@ inputs = {
 }
 {{ end }}
 
-skip = include.env.locals.skip_module.eks
+exclude {
+  if      = include.env.locals.skip_module.eks
+  actions = ["all"]
+}

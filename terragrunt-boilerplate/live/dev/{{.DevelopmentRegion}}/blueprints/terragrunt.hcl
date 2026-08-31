@@ -61,7 +61,10 @@ EOF
 }
 
 inputs = {
-  enable_aws_load_balancer_controller = include.env.locals.lbc_enable_aws_load_balancer_controller
+  enable_aws_load_balancer_controller = try(include.env.locals.blueprints_enable_aws_load_balancer_controller, false)
+  enable_cluster_autoscaler           = try(include.env.locals.blueprints_enable_cluster_autoscaler, false)
+  enable_external_dns                 = try(include.env.locals.blueprints_enable_external_dns, false)
+  enable_aws_efs_csi_driver           = try(include.env.locals.blueprints_enable_aws_efs_csi_driver, false)
 
   cluster_name      = dependency.eks.outputs.cluster_name
   cluster_endpoint  = dependency.eks.outputs.cluster_endpoint
@@ -69,6 +72,48 @@ inputs = {
   oidc_provider_arn = dependency.eks.outputs.oidc_provider_arn
 
   aws_load_balancer_controller = {
+    chart_version = "2.13.4"
+    set = [
+      {
+        name  = "clusterName"
+        value = dependency.eks.outputs.cluster_name
+      },
+      {
+        name  = "vpcId"
+        value = dependency.vpc.outputs.vpc_id
+      }
+    ]
+  }
+
+  cluster_autoscaler = {
+    chart_version = "1.8.1"
+    set = [
+      {
+        name  = "clusterName"
+        value = dependency.eks.outputs.cluster_name
+      },
+      {
+        name  = "vpcId"
+        value = dependency.vpc.outputs.vpc_id
+      }
+    ]
+  }
+
+  external_dns = {
+    chart_version = "9.0.3"
+    set = [
+      {
+        name  = "clusterName"
+        value = dependency.eks.outputs.cluster_name
+      },
+      {
+        name  = "vpcId"
+        value = dependency.vpc.outputs.vpc_id
+      }
+    ]
+  }
+
+  aws_efs_csi_driver = {
     chart_version = "1.8.1"
     set = [
       {
@@ -85,4 +130,7 @@ inputs = {
   tags = include.env.locals.tags
 }
 
-skip = include.env.locals.skip_module.lbc
+exclude {
+  if      = include.env.locals.skip_module.blueprints
+  actions = ["all"]
+}

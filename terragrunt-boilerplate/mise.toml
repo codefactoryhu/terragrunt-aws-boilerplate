@@ -1,113 +1,17 @@
 [tools]
 opentofu = "{{.OpentofuVersion}}"
 terragrunt = "{{.TerragruntVersion}}"
+python = "3.14.2"
+awscli = "2.32.29"
+terraform-docs = "0.21.0"
 
 [env]
 PROJECT_NAME = "{{.ProjectName}}"
 PROJECT_VERSION = "{{.ProjectVersion}}"
+TG_TF_PATH = "tofu"
+TG_BACKEND_BOOTSTRAP = true
+TG_PROVIDER_CACHE = 1
+TG_PROVIDER_CACHE_REGISTRY_NAMES = "registry.opentofu.org"
 
-[tasks.role]
-description = "apply an account file to an account with terragrunt-execution-role"
-usage = '''
-arg "account_file" "account-file" default="./account-files/dev.json"
-'''
-run = '''
-#!/bin/bash
-set -e
-
-role_name="terragrunt-execution-role"
-account_file="$usage_account_file"
-
-if [[ -z "$1" ]]; then
-    echo "Usage: $0 <account_file.json>"
-    exit 1
-fi
-
-#template
-account_id=$(jq -r '.account_id' "$account_file")
-config=$(sed "s/\${account_id}/$account_id/g" "$account_file")
-
-#extract
-trust_policy=$(echo "$config" | jq -c '.policies.trust')
-inline_policy=$(echo "$config" | jq -c '.policies.inline')
-managed_policies=$(echo "$config" | jq -r '.policies.managed[]')
-
-aws iam get-role --role-name "$role_name" &>/dev/null || \
-    aws iam create-role --role-name "$role_name" --assume-role-policy-document "$trust_policy" --tags Key=created_by,Value=script
-
-for policy_arn in $managed_policies; do
-    aws iam attach-role-policy --policy-arn "$policy_arn" --role-name "$role_name"
-done
-
-aws iam put-role-policy --role-name "$role_name" --policy-name "inline-policy" --policy-document "$inline_policy"
-'''
-
-[tasks.checkov-plan]
-description = "Use checkov to scan and check a terragrunt unit."
-usage = '''
-arg "env" "environment" default="development"
-arg "region" "region" default="eu-central-1"
-arg "unit" "terragrunt-unit" default="vpc"
-'''
-run = '''
-#!/bin/bash -eux
-WORKDIR=./live/$usage_env/$usage_region/$usage_unit
-TERRAGRUNT_CACHE=.terragrunt-cache
-
-terragrunt init --working-dir $WORKDIR
-terragrunt plan --working-dir $WORKDIR --out tfplan.binary
-
-BINARY="$(fd -H -i tfplan.binary $WORKDIR/$TERRAGRUNT_CACHE)"
-cd ./${BINARY%/*}
-tofu show -json tfplan.binary | jq > tfplan.json
-
-checkov -f tfplan.json --soft-fail
-'''
-
-[tasks.checkov-all]
-description = "Use checkov to scan and check all terragrunt infrastructure."
-run = '''
-#!/bin/bash -eux
-
-BIN_NAME=tfplan.binary
-JSON_NAME=tfplan.json
-JSON_DIR=./checkov/json-plans
-
-convert_bin_to_json() {
-fd -HI -t f $BIN_NAME | while read -r FILE; do
-  INFRA_DIR=$(pwd)
-  cd $(dirname "$FILE")
-  tofu show -json $BIN_NAME | jq > $JSON_NAME
-  cd $INFRA_DIR
-done
-}
-
-collect_json() {
-mkdir -p $JSON_DIR
-INDEX=0
-fd -HI -t f tfplan.json | while read -r FILE; do
-  INDEX=$((INDEX + 1))
-  mv "$FILE" "$JSON_DIR/tfplan$INDEX.json"
-done
-}
-
-terragrunt init --all
-terragrunt plan --all --out $BIN_NAME
-
-convert_bin_to_json
-collect_json
-
-checkov -d $JSON_DIR --soft-fail
-'''
-
-[tasks.checkov-custom]
-description = "Check a selected custom checkov policy"
-usage = '''
-arg "check_id" "checkov_check_id" default="CKV2_TAG_1"
-'''
-depends = ['checkov-all']
-run = '''
-checkov -d ./checkov/json-plans \
-  --external-checks-dir ./checkov \
-  --check $usage_check_id
-'''
+[task_config]
+dir = ".mise/tasks"

@@ -1,16 +1,28 @@
 variables:
+  - name: EksPreset
+    description: |
+      Choose your EKS setup:
+    order: 1
+    type: enum
+    options:
+      - eks-auto
+      - eks-managed
+    default: eks-auto
+    validate:
+      - required
+
   - name: ProjectName
     description: "(lowercase, alphanumeric with hyphens)"
-    order: 1
+    order: 2
     type: string
-    default: "my-project"
+    default: "codefactory-default"
     validations:
       - required
       - length-3-20
 
   - name: ProjectVersion
     description: "(semantic versioning format: x.y.z)"
-    order: 2
+    order: 3
     type: string
     default: "1.0.0"
     validations:
@@ -19,24 +31,27 @@ variables:
 
   - name: OrganizationId
     description: "(format: o-xxxxxxxxxx)"
-    order: 3
-    type: string
-    validations:
-      - required
-      - length-10-32
-
-  - name: OrganizationRootId
-    description: "(format: o-xxxx)"
     order: 4
     type: string
+    default: "o-xxxxxxxxxx"
+    validations:
+      - required
+      - length-12-34
+
+  - name: OrganizationRootId
+    description: "(format: r-xxxx)"
+    order: 5
+    type: string
+    default: "r-xxxx"
     validations:
       - required
       - length-6-36
 
   - name: DevelopmentAccountId
     description: "(exactly 12 digits)"
-    order: 5
+    order: 6
     type: string
+    default: "000000000000"
     validations:
       - required
       - length-12-12
@@ -44,183 +59,45 @@ variables:
 
   - name: ManagementAccountId
     description: "(exactly 12 digits)"
-    order: 6
+    order: 7
     type: string
-    validate:
+    default: "000000000000"
+    validations:
       - required
-      - length-12
+      - length-12-12
+      - digit
 
   - name: MonitoringAccountId
     description: "(exactly 12 digits)"
-    order: 7
+    order: 8
     type: string
-    validate:
+    default: "000000000000"
+    validations:
       - required
-      - length-12
+      - length-12-12
+      - digit
 
   - name: ProductionAccountId
     description: "(exactly 12 digits)"
-    order: 8
-    type: string
-    validate:
-      - required
-      - length-12
-
-  - name: DevelopmentEmail
-    description: "(valid email format)"
     order: 9
     type: string
+    default: "000000000000"
     validations:
       - required
-      - email
+      - length-12-12
+      - digit
 
-  - name: ManagementEmail
-    description: "(valid email format)"
+  - name: EmailDomain
+    description: "(valid domain format)"
     order: 10
     type: string
+    default: "boilerplate@codefactory.hu"
     validations:
       - required
       - email
 
-  - name: MonitoringEmail
-    description: "(valid email format)"
+  - name: DefaultRegion
     order: 11
-    type: string
-    validations:
-      - required
-      - email
-
-  - name: ProductionEmail
-    description: "(valid email format)"
-    order: 12
-    type: string
-    validations:
-      - required
-      - email
-
-  - name: DevelopmentRegion
-    order: 13
-    type: enum
-    default: "eu-west-1"
-    options:
-      - "us-east-1"
-      - "us-east-2"
-      - "us-west-1"
-      - "us-west-2"
-      - "eu-west-1"
-      - "eu-west-2"
-      - "eu-west-3"
-      - "eu-central-1"
-      - "eu-central-2"
-      - "eu-north-1"
-      - "eu-south-1"
-      - "eu-south-2"
-      - "ap-northeast-1"
-      - "ap-northeast-2"
-      - "ap-northeast-3"
-      - "ap-southeast-1"
-      - "ap-southeast-2"
-      - "ap-southeast-3"
-      - "ap-south-1"
-      - "ap-south-2"
-      - "ca-central-1"
-      - "sa-east-1"
-    validate:
-      - required
-
-  - name: ManagementRegion
-    order: 14
-    type: enum
-    default: "eu-west-1"
-    options:
-      - "us-east-1"
-      - "us-east-2"
-      - "us-west-1"
-      - "us-west-2"
-      - "eu-west-1"
-      - "eu-west-2"
-      - "eu-west-3"
-      - "eu-central-1"
-      - "eu-central-2"
-      - "eu-north-1"
-      - "eu-south-1"
-      - "eu-south-2"
-      - "ap-northeast-1"
-      - "ap-northeast-2"
-      - "ap-northeast-3"
-      - "ap-southeast-1"
-      - "ap-southeast-2"
-      - "ap-southeast-3"
-      - "ap-south-1"
-      - "ap-south-2"
-      - "ca-central-1"
-      - "sa-east-1"
-    validate:
-      - required
-
-  - name: MonitoringRegion
-    order: 15
-    type: enum
-    default: "eu-west-1"
-    options:
-      - "us-east-1"
-      - "us-east-2"
-      - "us-west-1"
-      - "us-west-2"
-      - "eu-west-1"
-      - "eu-west-2"
-      - "eu-west-3"
-      - "eu-central-1"
-      - "eu-central-2"
-      - "eu-north-1"
-      - "eu-south-1"
-      - "eu-south-2"
-      - "ap-northeast-1"
-      - "ap-northeast-2"
-      - "ap-northeast-3"
-      - "ap-southeast-1"
-      - "ap-southeast-2"
-      - "ap-southeast-3"
-      - "ap-south-1"
-      - "ap-south-2"
-      - "ca-central-1"
-      - "sa-east-1"
-    validate:
-      - required
-
-  - name: ProductionRegion
-    order: 16
-    type: enum
-    default: "eu-west-1"
-    options:
-      - "us-east-1"
-      - "us-east-2"
-      - "us-west-1"
-      - "us-west-2"
-      - "eu-west-1"
-      - "eu-west-2"
-      - "eu-west-3"
-      - "eu-central-1"
-      - "eu-central-2"
-      - "eu-north-1"
-      - "eu-south-1"
-      - "eu-south-2"
-      - "ap-northeast-1"
-      - "ap-northeast-2"
-      - "ap-northeast-3"
-      - "ap-southeast-1"
-      - "ap-southeast-2"
-      - "ap-southeast-3"
-      - "ap-south-1"
-      - "ap-south-2"
-      - "ca-central-1"
-      - "sa-east-1"
-    validate:
-      - required
-
-  - name: StateRegion
-    description: "Region for Terraform state bucket"
-    order: 17
     type: enum
     default: "eu-central-1"
     options:
@@ -249,51 +126,68 @@ variables:
     validate:
       - required
 
-  - name: InfrastructurePreset
-    description: |
-      Choose your AWS infrastructure setup:
-      • eks-auto       (vpc, eks-automod)
-      • eks-managed    (vpc, eks-managed-nodegroup)
-    order: 18
+  - name: StateRegion
+    description: "Region for Terraform state bucket"
+    order: 12
     type: enum
+    default: "eu-central-1"
     options:
-      - eks-auto
-      - eks-managed
-    default: eks-auto
+      - "us-east-1"
+      - "us-east-2"
+      - "us-west-1"
+      - "us-west-2"
+      - "eu-west-1"
+      - "eu-west-2"
+      - "eu-west-3"
+      - "eu-central-1"
+      - "eu-central-2"
+      - "eu-north-1"
+      - "eu-south-1"
+      - "eu-south-2"
+      - "ap-northeast-1"
+      - "ap-northeast-2"
+      - "ap-northeast-3"
+      - "ap-southeast-1"
+      - "ap-southeast-2"
+      - "ap-southeast-3"
+      - "ap-south-1"
+      - "ap-south-2"
+      - "ca-central-1"
+      - "sa-east-1"
     validate:
       - required
 
   - name: OpentofuVersion
-    description: "OpenTofu version"
-    order: 19
+    order: 13
     type: string
-    default: "1.10.2"
+    default: "1.12.6"
     validate:
       - required
       - semver
 
   - name: TerragruntVersion
-    description: "Terragrunt version"
-    order: 20
+    order: 14
     type: string
-    default: "0.82.3"
+    default: "1.1.4"
     validate:
       - required
       - semver
 
 skip_files:
   - path: "./live/**/cross-account/*"
-    if: '{{ eq .InfrastructurePreset "eks-auto" }}'
+    if: '{{ eq .EksPreset "eks-auto" }}'
   - path: "./live/**/ebs-csi/*"
-    if: '{{ eq .InfrastructurePreset "eks-auto" }}'
-  - path: "./live/**/irsa/*"
-    if: '{{ eq .InfrastructurePreset "eks-auto" }}'
-  - path: "./live/**/lbc/*"
-    if: '{{ eq .InfrastructurePreset "eks-auto" }}'
+    if: '{{ eq .EksPreset "eks-auto" }}'
+  - path: "./live/**/ebs-irsa/*"
+    if: '{{ eq .EksPreset "eks-auto" }}'
+  - path: "./live/**/blueprints/*"
+    if: '{{ eq .EksPreset "eks-auto" }}'
+  - path: "./live/**/efs/*"
+    if: '{{ eq .EksPreset "eks-auto" }}'
+  - path: "./live/**/acm-cert/*"
+    if: '{{ eq .EksPreset "eks-auto" }}'
   - path: "./live/**/kms/*"
-    if: '{{ eq .InfrastructurePreset "eks-auto" }}'
-  - path: "./modules/**/*"
-    if: '{{ eq .InfrastructurePreset "eks-auto" }}'
+    if: '{{ eq .EksPreset "eks-auto" }}'
 
 hooks:
   before:

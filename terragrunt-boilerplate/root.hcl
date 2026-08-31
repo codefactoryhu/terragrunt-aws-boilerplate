@@ -1,12 +1,18 @@
 locals {
   env_vars     = read_terragrunt_config(find_in_parent_folders("env.hcl"))
+  account_vars = read_terragrunt_config(find_in_parent_folders("account.hcl"))
+  project_vars = read_terragrunt_config(find_in_parent_folders("project.hcl"))
 
-  env        = local.env_vars.locals.env
-  region     = local.env_vars.locals.region
-  project    = local.env_vars.locals.project
-  account_id = local.env_vars.locals.account_id
+  project        = local.project_vars.locals.project
+  execution_role = local.project_vars.locals.execution_role
 
-  s3_state_region       = "{{.StateRegion}}"
+  account_id = local.account_vars.locals.account_id
+  account    = local.account_vars.locals.account
+  env        = local.account_vars.locals.account
+
+  region = local.env_vars.locals.region
+
+  s3_state_region = "{{.StateRegion}}"
 }
 
 remote_state {
@@ -16,11 +22,11 @@ remote_state {
     if_exists = "overwrite_terragrunt"
   }
   config = {
-    bucket         = "${local.project}-${local.env}-terraform-state"
-    key            = "${path_relative_to_include()}/terraform.tfstate"
-    region         = local.s3_state_region
-    encrypt        = true
-    dynamodb_table = "${local.project}-${local.env}-terraform-state-lock"
+    bucket       = "${local.project}-terraform-state"
+    key          = "${path_relative_to_include()}/terraform.tfstate"
+    region       = "${local.s3_state_region}"
+    encrypt      = true
+    use_lockfile = true
   }
 }
 
@@ -31,9 +37,8 @@ generate "provider" {
   contents = <<EOF
 provider "aws" {
   region  = "${local.region}"
-
   assume_role {
-      role_arn     = "arn:aws:iam::${local.account_id}:role/terragrunt-execution-role"
+      role_arn     = "${local.execution_role}"
     }
 }
 EOF
