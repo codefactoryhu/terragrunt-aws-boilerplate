@@ -61,17 +61,20 @@ EOF
 }
 
 inputs = {
+{{ if eq .EksPreset "eks-managed" }}
   enable_aws_load_balancer_controller = try(include.env.locals.blueprints_enable_aws_load_balancer_controller, false)
+  enable_cluster_autoscaler           = try(include.env.locals.blueprints_enable_cluster_autoscaler, false)
+{{ end }}
+
   enable_external_dns                 = try(include.env.locals.blueprints_enable_external_dns, false)
   enable_aws_efs_csi_driver           = try(include.env.locals.blueprints_enable_aws_efs_csi_driver, false)
-  enable_cluster_autoscaler           = try(include.env.locals.blueprints_enable_cluster_autoscaler, false)
 
   cluster_name      = dependency.eks.outputs.cluster_name
   cluster_endpoint  = dependency.eks.outputs.cluster_endpoint
   cluster_version   = dependency.eks.outputs.cluster_version
   oidc_provider_arn = dependency.eks.outputs.oidc_provider_arn
 
-  {{ if eq .EksPreset "eks-managed" }}
+{{ if eq .EksPreset "eks-managed" }}
   aws_load_balancer_controller = {
     chart_version = "2.13.4"
     set = [
@@ -99,7 +102,7 @@ inputs = {
       }
     ]
   }
-  {{ end }}
+{{ end }}
 
   external_dns = {
     chart_version = "9.0.3"
