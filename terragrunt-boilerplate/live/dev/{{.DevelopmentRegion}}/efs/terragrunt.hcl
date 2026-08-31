@@ -15,11 +15,11 @@ include "env" {
 dependency "vpc" {
   config_path = "${get_original_terragrunt_dir()}/../vpc"
   mock_outputs = {
-    azs             = ["eu-central-1a", "eu-central-1b"]
-    vpc_id          = "vpc-00000000"
-    private_subnets = ["subnet-00000000", "subnet-00000001", "subnet-00000002"]
+    azs                         = ["eu-central-1a", "eu-central-1b"]
+    vpc_id                      = "vpc-00000000"
+    private_subnets             = ["subnet-00000000", "subnet-00000001", "subnet-00000002"]
     private_subnets_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-    vpc_cidr_block  = "10.0.0.0/16"
+    vpc_cidr_block              = "10.0.0.0/16"
   }
 }
 
@@ -40,7 +40,7 @@ inputs = {
   attach_policy                      = include.env.locals.efs_attach_policy
   bypass_policy_lockout_safety_check = include.env.locals.efs_bypass_policy_lockout_safety_check
 
-  kms_key_arn    = dependency.kms.kms_key_arn
+  kms_key_arn = dependency.kms.kms_key_arn
   mount_targets = {
     for idx, az in dependency.vpc.outputs.azs :
     az => {
@@ -57,11 +57,14 @@ inputs = {
     }
   }
 
-  enable_backup_policy = include.env.locals.efs_enable_backup_policy
-  create_replication_configuration = include.env.locals.efs_create_replication_configuration
+  enable_backup_policy                  = include.env.locals.efs_enable_backup_policy
+  create_replication_configuration      = include.env.locals.efs_create_replication_configuration
   replication_configuration_destination = include.env.locals.efs_replication_configuration_destination
 
   tags = include.env.locals.tags
 }
 
-skip = include.env.locals.skip_module.efs
+exclude {
+  if      = include.env.locals.skip_module.efs
+  actions = ["all"]
+}

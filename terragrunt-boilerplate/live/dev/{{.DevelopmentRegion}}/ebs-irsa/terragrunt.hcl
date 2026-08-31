@@ -21,8 +21,8 @@ dependency "eks" {
 }
 
 inputs = {
-  role_name                      = include.env.locals.ebs_irsa_role_name
-  attach_ebs_csi_policy          = include.env.locals.ebs_irsa_attach_ebs_csi_policy
+  role_name             = include.env.locals.ebs_irsa_role_name
+  attach_ebs_csi_policy = include.env.locals.ebs_irsa_attach_ebs_csi_policy
 
   oidc_providers = {
     main = {
@@ -34,4 +34,7 @@ inputs = {
   tags = include.env.locals.tags
 }
 
-skip = include.env.locals.skip_module.irsa
+exclude {
+  if      = include.env.locals.skip_module.irsa
+  actions = ["all"]
+}

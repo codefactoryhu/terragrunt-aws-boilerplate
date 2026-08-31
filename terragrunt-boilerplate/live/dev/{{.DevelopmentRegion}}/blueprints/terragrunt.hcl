@@ -130,4 +130,7 @@ inputs = {
   tags = include.env.locals.tags
 }
 
-skip = include.env.locals.skip_module.lbc
+exclude {
+  if      = include.env.locals.skip_module.lbc
+  actions = ["all"]
+}

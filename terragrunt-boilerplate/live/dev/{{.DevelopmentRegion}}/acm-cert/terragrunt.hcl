@@ -22,4 +22,7 @@ inputs = {
   tags                      = include.env.locals.tags
 }
 
-skip = include.env.locals.skip_module.acm
+exclude {
+  if      = include.env.locals.skip_module.acm
+  actions = ["all"]
+}

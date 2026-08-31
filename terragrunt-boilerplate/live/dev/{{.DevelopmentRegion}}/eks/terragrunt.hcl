@@ -80,4 +80,7 @@ inputs = {
 }
 {{ end }}
 
-skip = include.env.locals.skip_module.eks
+exclude {
+  if      = include.env.locals.skip_module.eks
+  actions = ["all"]
+}
