@@ -61,10 +61,10 @@ EOF
 }
 
 inputs = {
-  enable_aws_load_balancer_controller = include.env.locals.blueprints_enable_aws_load_balancer_controller
-  enable_external_dns                 = include.env.locals.blueprints_enable_external_dns
-  enable_aws_efs_csi_driver           = include.env.locals.blueprints_enable_aws_efs_csi_driver
-  enable_cluster_autoscaler           = include.env.locals.blueprints_enable_cluster_autoscaler
+  enable_aws_load_balancer_controller = try(include.env.locals.blueprints_enable_aws_load_balancer_controller, false)
+  enable_external_dns                 = try(include.env.locals.blueprints_enable_external_dns, false)
+  enable_aws_efs_csi_driver           = try(include.env.locals.blueprints_enable_aws_efs_csi_driver, false)
+  enable_cluster_autoscaler           = try(include.env.locals.blueprints_enable_cluster_autoscaler, false)
 
   cluster_name      = dependency.eks.outputs.cluster_name
   cluster_endpoint  = dependency.eks.outputs.cluster_endpoint

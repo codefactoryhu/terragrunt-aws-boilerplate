@@ -13,12 +13,12 @@ include "env" {
 }
 
 inputs = {
-  domain_name = include.env.locals.acm_domain_name
-  zone_id     = include.env.locals.acm_zone_id
+  domain_name = try(include.env.locals.acm_domain_name, null)
+  zone_id     = try(include.env.locals.acm_zone_id, null)
 
-  validation_method         = include.env.locals.acm_validation_method
-  subject_alternative_names = include.env.locals.acm_subject_alternative_names
-  wait_for_validation       = include.env.locals.acm_wait_for_validation
+  validation_method         = try(include.env.locals.acm_validation_method, "DNS")
+  subject_alternative_names = try(include.env.locals.acm_subject_alternative_names, [])
+  wait_for_validation       = try(include.env.locals.acm_wait_for_validation, true)
   tags                      = include.env.locals.tags
 }
 

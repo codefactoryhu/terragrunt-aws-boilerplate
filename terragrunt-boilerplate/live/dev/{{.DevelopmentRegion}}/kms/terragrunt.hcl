@@ -13,11 +13,11 @@ include "env" {
 }
 
 inputs = {
-  description        = include.env.locals.kms_description
-  key_usage          = include.env.locals.kms_key_usage
-  key_administrators = include.env.locals.kms_key_administrators
-  aliases            = include.env.locals.kms_key_aliases
-  key_statements     = include.env.locals.kms_key_statements
+  description        = try(include.env.locals.kms_description, "${include.env.locals.project}-${include.env.locals.env} KMS key")
+  key_usage          = try(include.env.locals.kms_key_usage, "ENCRYPT_DECRYPT")
+  key_administrators = try(include.env.locals.kms_key_administrators, [])
+  aliases            = try(include.env.locals.kms_key_aliases, [])
+  key_statements     = try(include.env.locals.kms_key_statements, [])
 
   tags = include.env.locals.tags
 }

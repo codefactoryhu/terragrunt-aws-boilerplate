@@ -31,14 +31,14 @@ dependency "kms" {
 }
 
 inputs = {
-  name           = include.env.locals.efs_description
-  creation_token = include.env.locals.efs_creation_token
-  encrypted      = include.env.locals.efs_encrypted
+  name           = try(include.env.locals.efs_description, "${include.env.locals.project}-${include.env.locals.env}-efs")
+  creation_token = try(include.env.locals.efs_creation_token, "${include.env.locals.project}-${include.env.locals.env}-efs")
+  encrypted      = try(include.env.locals.efs_encrypted, true)
 
-  lifecycle_policy = include.env.locals.efs_lifecycle_policy
+  lifecycle_policy = try(include.env.locals.efs_lifecycle_policy, [])
 
-  attach_policy                      = include.env.locals.efs_attach_policy
-  bypass_policy_lockout_safety_check = include.env.locals.efs_bypass_policy_lockout_safety_check
+  attach_policy                      = try(include.env.locals.efs_attach_policy, true)
+  bypass_policy_lockout_safety_check = try(include.env.locals.efs_bypass_policy_lockout_safety_check, false)
 
   kms_key_arn = dependency.kms.kms_key_arn
   mount_targets = {
@@ -57,9 +57,9 @@ inputs = {
     }
   }
 
-  enable_backup_policy                  = include.env.locals.efs_enable_backup_policy
-  create_replication_configuration      = include.env.locals.efs_create_replication_configuration
-  replication_configuration_destination = include.env.locals.efs_replication_configuration_destination
+  enable_backup_policy                  = try(include.env.locals.efs_enable_backup_policy, true)
+  create_replication_configuration      = try(include.env.locals.efs_create_replication_configuration, false)
+  replication_configuration_destination = try(include.env.locals.efs_replication_configuration_destination, [])
 
   tags = include.env.locals.tags
 }
