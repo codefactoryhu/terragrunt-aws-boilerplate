@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+
+# MISE alias="report-module-versions"
+# MISE description="Report current vs. latest available Terraform/OpenTofu module versions used by Terragrunt units"
+
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+
+from git_utils import chdir_to_repo_root
+from log import error, info, success
+from report import ModuleReport, build_report, render_yaml
+from terragrunt import extract_source, find_units
+
+DEFAULT_ENVIRONMENT = "live/dev"
+
+
+def scan(env_dir: Path) -> list[ModuleReport]:
+    info(f"Scanning {env_dir} for terragrunt.hcl files")
+    reports: list[ModuleReport] = []
+
+    for terragrunt_file in find_units(env_dir):
+        unit_name = terragrunt_file.parent.name
+        info(f"Processing module: {unit_name}")
+
+        source = extract_source(terragrunt_file)
+        if not source:
+            info(f"No source in {terragrunt_file}, skipping")
+            continue
+
+        info(f"Found source: {source}")
+        report = build_report(unit_name, source)
+        info(report.log_line)
+        reports.append(report)
+
+    if not reports:
+        error(f"No modules found in {env_dir}")
+
+    return reports
+
+
+def parse_args(argv: list[str]) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Check Terraform/OpenTofu module versions in Terragrunt configurations",
+        usage="%(prog)s [--outdated] [<environment>]",
+    )
+    parser.add_argument(
+        "environment",
+        nargs="?",
+        default=DEFAULT_ENVIRONMENT,
+        help=f'environment directory to scan for terragrunt.hcl files (default: "{DEFAULT_ENVIRONMENT}")',
+    )
+    parser.add_argument(
+        "--outdated",
+        action="store_true",
+        help="only report modules that are outdated",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str]) -> int:
+    args = parse_args(argv)
+    chdir_to_repo_root()
+
+    env_dir = Path(args.environment)
+    if not env_dir.is_dir():
+        error(f"Directory '{env_dir}' not found (looked in {env_dir.resolve()}).")
+        return 1
+
+    suffix = "-outdated" if args.outdated else ""
+    output_file = env_dir / f"terraform-versions-{env_dir.name}{suffix}.yml"
+
+    info("Starting Terraform Module Version Checker")
+    info(f"Target directory: {env_dir}")
+    info(f"Mode: {'Outdated only' if args.outdated else 'Full report'}")
+    info(f"Output file will be: {output_file}")
+    print()
+
+    reports = scan(env_dir)
+
+    if args.outdated:
+        reports = [report for report in reports if report.needs_update]
+        if not reports:
+            success("All modules are up-to-date.")
+            return 0
+        info(f"Found {len(reports)} outdated modules")
+
+    info(f"Writing YAML to {output_file}")
+    output_file.write_text(render_yaml(reports, env_dir, args.outdated))
+    success(f"YAML generated: {output_file}")
+    success(f"Completed scan. Check {output_file} for details.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))
