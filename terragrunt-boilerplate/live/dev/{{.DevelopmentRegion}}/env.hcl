@@ -24,6 +24,8 @@ locals {
     irsa                  = false
     blueprints            = false
     kms                   = false
+    acm                   = false
+    efs                   = false
   {{ end }}
     eks                   = false
     vpc                   = false
