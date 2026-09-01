@@ -1,5 +1,5 @@
 terraform {
-  source = "git::git@github.com:aws-ia/terraform-aws-eks-blueprints-addons?ref=v1.22.0"
+  source = "git::git@github.com:aws-ia/terraform-aws-eks-blueprints-addons?ref=v1.24.0"
 }
 
 include "root" {
