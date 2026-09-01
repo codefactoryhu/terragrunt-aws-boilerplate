@@ -20,7 +20,7 @@ dependency "eks" {
 }
 
 dependency "irsa" {
-  config_path = "${get_original_terragrunt_dir()}/../irsa"
+  config_path = "${get_original_terragrunt_dir()}/../ebs-irsa"
   mock_outputs = {
     iam_role_arn = "arn:aws:iam::123456789012:role/example-role"
   }
