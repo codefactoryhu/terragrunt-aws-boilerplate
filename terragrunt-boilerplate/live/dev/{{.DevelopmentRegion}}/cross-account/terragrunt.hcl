@@ -19,8 +19,6 @@ inputs = {
   tags = include.env.locals.tags
 }
 
-skip = include.env.locals.skip_module.cross-account
-
 exclude {
   if      = include.env.locals.skip_module.cross_account
   actions = ["all"]
